@@ -1,10 +1,12 @@
 import { loadFont } from "@remotion/fonts";
-import { staticFile } from "remotion";
+import { interWoff2DataUri } from "./inter-data";
 
-// Inter variable font, bundled locally in public/fonts (no network at render time).
+// Inter variable font, embedded as a data URI — zero network at render time,
+// so the font delayRender can never hang a worker.
 loadFont({
   family: "Inter",
-  url: staticFile("fonts/Inter-latin.woff2"),
+  url: interWoff2DataUri,
+  format: "woff2",
   weight: "100 900",
 });
 
