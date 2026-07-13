@@ -129,13 +129,20 @@ build, also pull in whichever of these match what's being asked for:
 | One timeline → 16:9 / 1:1 / 9:16 exports | `reference/multi-format.md` |
 | Lottie, 3D (`@remotion/three`), procedural shapes/paths/noise | `reference/advanced-visuals.md` |
 
-For the *creative* side of a launch video — not just the code — two sibling
+For the *creative* side of a launch video — not just the code — sibling
 skills exist and are usually worth invoking alongside this one:
 
 - **motion-design** — animation & visual-design principles (easing choice,
   pacing rhythm, typography/color for video, transition taxonomy).
 - **launch-video-marketing** — narrative structure, retention psychology,
   platform-specific conventions, and CTA placement for product launch videos.
+- **video-sound-design** — music selection/licensing, mixing, ducking,
+  sound effects on cuts, loudness mastering.
+- **kinetic-animation** — concrete effect recipes: kinetic typography,
+  particle systems, shape morphing, fake-camera moves (parallax/Ken Burns/
+  whip pan), physics-feeling procedural motion.
+- **3d-design** — real 3D via `@remotion/three`: lighting, camera, materials,
+  importing `.glb` models, product-render/turntable conventions.
 
 ## Guardrails
 
