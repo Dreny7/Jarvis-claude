@@ -118,13 +118,33 @@ import { staticFile, Img, Audio, OffthreadVideo } from "remotion";
 
 ## Detailed reference
 
-For deeper API notes (interpolate options, easing, Sequence/Series patterns,
-transitions, common pitfalls), read `reference/api.md` in this skill folder.
+Core API notes (interpolate options, easing, Sequence/Series patterns,
+transitions, common pitfalls) are in `reference/api.md`. For a launch-video
+build, also pull in whichever of these match what's being asked for:
+
+| Need | Read |
+|---|---|
+| Narration, TTS, auto-generated captions | `reference/voiceover-captions.md` |
+| Cutting/animating on the beat of the soundtrack | `reference/audio-reactive.md` |
+| One timeline → 16:9 / 1:1 / 9:16 exports | `reference/multi-format.md` |
+| Lottie, 3D (`@remotion/three`), procedural shapes/paths/noise | `reference/advanced-visuals.md` |
+
+For the *creative* side of a launch video — not just the code — two sibling
+skills exist and are usually worth invoking alongside this one:
+
+- **motion-design** — animation & visual-design principles (easing choice,
+  pacing rhythm, typography/color for video, transition taxonomy).
+- **launch-video-marketing** — narrative structure, retention psychology,
+  platform-specific conventions, and CTA placement for product launch videos.
 
 ## Guardrails
 
 - Never animate with wall-clock time or timers — only `useCurrentFrame()`.
 - Keep component render pure; it runs once per frame and must be deterministic.
 - Match `durationInFrames` to the content length (`seconds * fps`).
-- Fonts: load via `@remotion/google-fonts` or `@remotion/fonts`, not `<link>`,
-  so they're available during headless render.
+- Fonts: load via `@remotion/fonts` (embed as a data URI, or point at a local
+  `public/` file) rather than `@remotion/google-fonts` or `<link>` when
+  rendering headless in a sandboxed/offline environment — live font fetches
+  can hang `delayRender()` and time out the render.
+- TTS calls, beat-detection, and Whisper transcription are **build-time
+  scripts**, never code that runs inside a rendered component.
