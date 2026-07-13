@@ -148,6 +148,10 @@ skills exist and are usually worth invoking alongside this one:
   graphics over it via `<OffthreadVideo>`.
 - **footage-libraries** — pull real, licensed/public-domain stock b-roll
   (Pexels, Pixabay, Internet Archive, Storyblocks, etc.) as base footage.
+- **cinematic-vfx** — film-look post-processing: color grading, grain, lens
+  flares, chromatic aberration, glitch, motion blur, speed ramping.
+- **shot-recreation-workflow** — turn a reference video's look/energy into
+  an original, legally clean shot list before writing any scene code.
 
 ## Guardrails
 
