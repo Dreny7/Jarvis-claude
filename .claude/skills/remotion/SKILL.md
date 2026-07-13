@@ -143,6 +143,9 @@ skills exist and are usually worth invoking alongside this one:
   whip pan), physics-feeling procedural motion.
 - **3d-design** — real 3D via `@remotion/three`: lighting, camera, materials,
   importing `.glb` models, product-render/turntable conventions.
+- **ai-video-generation** — generate realistic/live-action-style footage
+  (Veo, Sora, Runway, Luma, Kling) as a base layer and composite Remotion
+  graphics over it via `<OffthreadVideo>`.
 
 ## Guardrails
 
