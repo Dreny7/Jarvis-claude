@@ -2,22 +2,28 @@ import React from "react";
 import { V4 } from "../theme";
 
 /**
- * The ecelon "M" mark — five facets, geometry derived from the brand book's
- * construction-grid page. Canonical facet→layer map (brand book pp.3–7):
+ * The ecelon "M" mark — five facets, geometry traced pixel-exact from the
+ * brand book's master logo (bp-08) rather than approximated. Facets are
+ * compact and share corners (tight thin gaps), forming a crisp "M".
+ * Canonical facet→layer map (brand book pp.3–7):
  * left foot=Trust, left wing=AI Agents, center square=Social,
  * right wing=Data Intelligence, right foot=Education.
  */
 export type Facet = { id: string; label: string; pts: [number, number][] };
 
+export const MARK_VB = { w: 210, h: 100 };
+
 export const FACETS: Facet[] = [
-  { id: "trust", label: "Trust", pts: [[5, 63], [41, 47], [41, 79], [5, 97]] },
-  { id: "agents", label: "AI Agents", pts: [[43, 3], [83, 22], [83, 66], [43, 40]] },
-  { id: "social", label: "Social", pts: [[86.5, 61], [126.5, 61], [126.5, 100], [86.5, 100]] },
-  { id: "data", label: "Data Intelligence", pts: [[127, 22], [167, 3], [167, 40], [127, 66]] },
-  { id: "edu", label: "Education", pts: [[169, 47], [205, 63], [205, 97], [169, 79]] },
+  { id: "trust", label: "Trust", pts: [[42, 44], [42, 77], [2, 99], [2, 66]] },
+  { id: "agents", label: "AI Agents", pts: [[42, 2], [84, 22], [84, 60], [42, 44]] },
+  { id: "social", label: "Social", pts: [[84, 60], [126, 60], [126, 99], [84, 99]] },
+  { id: "data", label: "Data Intelligence", pts: [[168, 2], [126, 22], [126, 60], [168, 44]] },
+  { id: "edu", label: "Education", pts: [[168, 44], [168, 77], [208, 99], [208, 66]] },
 ];
 
-export const MARK_VB = { w: 210, h: 104 };
+// Rounded-corner radius baked via a stroke-linejoin round on a thin same-fill
+// stroke keeps the facets crisp; the brand mark has softly rounded corners.
+const GAP_SCALE = 0.955; // thin uniform gap between facets, matching the master
 
 const centroid = (pts: [number, number][]) => {
   const x = pts.reduce((a, p) => a + p[0], 0) / pts.length;
@@ -26,15 +32,15 @@ const centroid = (pts: [number, number][]) => {
 };
 
 /**
- * Full mark with per-facet build progress (0 = away/hidden, 1 = locked).
- * Facets fly in from an outward explode offset and settle.
+ * Full mark with per-facet build progress (0 = hidden/exploded, 1 = locked).
+ * Facets fly in from an outward explode offset and settle into the tight M.
  */
 export const FacetMark: React.FC<{
   width: number;
   facetProgress: number[]; // length 5
   color?: string;
   glow?: number; // 0..1
-  explode?: number; // px (viewBox units) offset at progress 0
+  explode?: number; // viewBox-unit outward offset at progress 0
 }> = ({ width, facetProgress, color = V4.orange, glow = 0, explode = 70 }) => {
   const height = (width * MARK_VB.h) / MARK_VB.w;
   return (
@@ -46,7 +52,7 @@ export const FacetMark: React.FC<{
         overflow: "visible",
         filter:
           glow > 0.01
-            ? `drop-shadow(0 0 ${18 * glow}px rgba(255,75,0,${0.7 * glow})) drop-shadow(0 0 ${46 * glow}px rgba(255,107,44,${0.4 * glow}))`
+            ? `drop-shadow(0 0 ${16 * glow}px rgba(255,75,0,${0.7 * glow})) drop-shadow(0 0 ${42 * glow}px rgba(255,107,44,${0.4 * glow}))`
             : undefined,
       }}
     >
@@ -54,18 +60,22 @@ export const FacetMark: React.FC<{
         const p = Math.max(0, Math.min(1, facetProgress[i] ?? 0));
         if (p <= 0.001) return null;
         const c = centroid(f.pts);
-        const dirX = (c.x - MARK_VB.w / 2) / (MARK_VB.w / 2); // outward
+        const dirX = (c.x - MARK_VB.w / 2) / (MARK_VB.w / 2);
         const dx = dirX * explode * (1 - p);
-        const dy = -14 * (1 - p);
+        const dy = -12 * (1 - p);
         return (
           <polygon
             key={f.id}
             points={f.pts.map((pt) => pt.join(",")).join(" ")}
             fill={color}
+            stroke={color}
+            strokeWidth={3}
+            strokeLinejoin="round"
             opacity={Math.min(1, p * 1.5)}
             style={{
-              transformOrigin: `${c.x}px ${c.y}px`,
-              transform: `translate(${dx}px, ${dy}px) scale(${0.75 + 0.25 * p})`,
+              transformBox: "fill-box",
+              transformOrigin: "center",
+              transform: `translate(${dx}px, ${dy}px) scale(${(0.72 + 0.28 * p) * GAP_SCALE})`,
             }}
           />
         );
@@ -74,7 +84,7 @@ export const FacetMark: React.FC<{
   );
 };
 
-/** One facet alone (Act 3 shard, Act 4d labeled row). */
+/** One facet alone (pivot shard, labeled row) — full size, no gap inset. */
 export const SingleFacet: React.FC<{
   index: number;
   width: number;
@@ -103,7 +113,13 @@ export const SingleFacet: React.FC<{
             : undefined,
       }}
     >
-      <polygon points={f.pts.map((pt) => pt.join(",")).join(" ")} fill={color} />
+      <polygon
+        points={f.pts.map((pt) => pt.join(",")).join(" ")}
+        fill={color}
+        stroke={color}
+        strokeWidth={3}
+        strokeLinejoin="round"
+      />
     </svg>
   );
 };
