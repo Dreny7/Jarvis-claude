@@ -5,7 +5,7 @@ import { V4 } from "../theme";
 // Left-facing human profile silhouette (original bezier path), brand-book
 // photography direction: near-total silhouette, thin orange rim light,
 // orange "+" scan grid tracking across the face.
-const PROFILE =
+export const PROFILE =
   "M 280 28" +
   " C 352 32, 422 96, 424 190" +
   " C 426 262, 412 322, 390 372" +

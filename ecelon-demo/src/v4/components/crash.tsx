@@ -56,21 +56,37 @@ export const CrashChart: React.FC<{ label?: string; seed?: number }> = ({
           <circle cx={head.x} cy={head.y} r={7} fill={V4.orange} />
         )}
       </svg>
+      {/* real print: Sept 29, 2008 — Dow −777.68 (−6.98%), its worst point drop */}
       <div
         style={{
           position: "absolute",
-          top: 150,
+          top: 132,
           left: 128,
           fontFamily: V4.mono,
           fontSize: 26,
           letterSpacing: 3,
           color: AMBER,
+          backgroundColor: "rgba(5,4,3,0.6)",
+          padding: "8px 14px",
         }}
       >
         {label}
         <span style={{ color: V4.orange, marginLeft: 20, fontWeight: 700 }}>
-          ▼ {(-6.2 - draw * 3).toFixed(2)}%
+          ▼ {(-Math.min(777.68, 90 + draw * 687.68)).toFixed(2)} (−6.98%)
         </span>
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          top: 196,
+          left: 142,
+          fontFamily: V4.mono,
+          fontSize: 20,
+          letterSpacing: 2,
+          color: AMBER_DIM,
+        }}
+      >
+        S&amp;P 500 ▼ −8.79% · NASDAQ ▼ −9.14% · SEPT 29 2008
       </div>
     </AbsoluteFill>
   );
@@ -103,28 +119,42 @@ export const DivergeChart: React.FC = () => {
   );
 };
 
-/** A wall/board of falling ticker numbers — bailout-era chaos. */
+/**
+ * A board of the real 2008 collapse — actual tickers with their actual
+ * worst-day prints (Lehman −94% Sep 15; AIG −61% Sep 16; WaMu −87% Sep 26;
+ * Wachovia −82% Sep 29; Citi −26%, BofA −26%, Goldman −19%, Merrill −24%…).
+ */
+const REAL_PRINTS: { sym: string; name: string; print: string }[] = [
+  { sym: "LEH", name: "LEHMAN BROS", print: "▼ 94.3%" },
+  { sym: "AIG", name: "AIG", print: "▼ 60.8%" },
+  { sym: "WM", name: "WASH. MUTUAL", print: "▼ 86.6%" },
+  { sym: "WB", name: "WACHOVIA", print: "▼ 81.6%" },
+  { sym: "C", name: "CITIGROUP", print: "▼ 26.0%" },
+  { sym: "BAC", name: "BANK OF AMERICA", print: "▼ 26.2%" },
+  { sym: "MER", name: "MERRILL LYNCH", print: "▼ 24.7%" },
+  { sym: "GS", name: "GOLDMAN SACHS", print: "▼ 18.9%" },
+  { sym: "MS", name: "MORGAN STANLEY", print: "▼ 24.2%" },
+  { sym: "FNM", name: "FANNIE MAE", print: "▼ 89.6%" },
+  { sym: "FRE", name: "FREDDIE MAC", print: "▼ 82.8%" },
+  { sym: "DJIA", name: "DOW JONES", print: "▼ 777.68" },
+];
+
 export const NumberBoard: React.FC = () => {
   const frame = useCurrentFrame();
-  const rows = 9;
-  const cols = 4;
-  const SYMS = ["LEH", "AIG", "MER", "WM", "WB", "C", "BAC", "GM", "F", "MS", "GS", "IndyMac"];
   return (
-    <AbsoluteFill style={{ padding: "150px 90px 120px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-      {Array.from({ length: rows }, (_, r) => (
+    <AbsoluteFill style={{ padding: "140px 120px 200px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      {Array.from({ length: 6 }, (_, r) => (
         <div key={r} style={{ display: "flex", justifyContent: "space-between" }}>
-          {Array.from({ length: cols }, (_, c) => {
-            const i = r * cols + c;
-            const sym = SYMS[i % SYMS.length];
-            const flick = Math.floor((frame + i * 7) / 6);
-            const pct = -(2 + rand(i * 13 + flick) * 60).toFixed(1);
-            const halted = rand(i * 3) > 0.7;
+          {Array.from({ length: 2 }, (_, c) => {
+            const i = r * 2 + c;
+            const e = REAL_PRINTS[i];
+            const on = frame > i * 5; // rows cascade in fast
+            const halted = ["LEH", "WM", "WB"].includes(e.sym) && Math.floor(frame / 8) % 2 === 0;
             return (
-              <div key={c} style={{ fontFamily: V4.mono, fontSize: 30, letterSpacing: 1, color: halted ? AMBER_DIM : AMBER, width: 360, whiteSpace: "nowrap" }}>
-                <span style={{ color: AMBER, fontWeight: 700 }}>{sym}</span>
-                <span style={{ color: V4.orange, marginLeft: 14 }}>
-                  {halted ? "HALTED" : `▼ ${pct}%`}
-                </span>
+              <div key={c} style={{ opacity: on ? 1 : 0, fontFamily: V4.mono, fontSize: 33, letterSpacing: 1, width: 780, whiteSpace: "nowrap", display: "flex" }}>
+                <span style={{ color: AMBER, fontWeight: 700, width: 110 }}>{e.sym}</span>
+                <span style={{ color: AMBER_DIM, fontSize: 24, width: 360, alignSelf: "center" }}>{e.name}</span>
+                <span style={{ color: V4.orange, fontWeight: 700 }}>{halted ? "HALTED" : e.print}</span>
               </div>
             );
           })}

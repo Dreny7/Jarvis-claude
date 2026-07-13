@@ -6,20 +6,19 @@ import { CountUp } from "../components/text";
 import { AgedTV, Subtitle, BroadcastChrome, AlertBanner } from "../components/aged";
 import { CrashChart, DivergeChart, NumberBoard, ForeclosureSigns, BankFacade } from "../components/crash";
 
-// ACT 1 — THE ARCHIVE. A recreated 2008 news broadcast (original graphics,
-// aged-tape treatment). Subtitles carry the story: the banks caused it, were
-// bailed out, the hedge funds profited, and the people paid.
+// THE ARCHIVE — recreated 2008 broadcast, fast cuts, real prints.
+// Runs under the driving section of the score; hard-cuts to the orange slam.
 
-const FadeCut: React.FC<{ dur: number; children: React.ReactNode }> = ({ dur, children }) => {
+const Cut: React.FC<{ dur: number; children: React.ReactNode }> = ({ dur, children }) => {
   const frame = useCurrentFrame();
-  const o = interpolate(frame, [0, 6, dur - 7, dur - 1], [0, 1, 1, 0], {
+  // near-hard cuts: 3-frame in, 3-frame out
+  const o = interpolate(frame, [0, 3, dur - 4, dur - 1], [0, 1, 1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
   return <AbsoluteFill style={{ opacity: o }}>{children}</AbsoluteFill>;
 };
 
-/** 1a — "2008." over tape static. */
 const Year: React.FC = () => {
   const frame = useCurrentFrame();
   const flick = 0.6 + 0.4 * Math.abs(Math.sin(frame / 3));
@@ -35,68 +34,31 @@ const Year: React.FC = () => {
   );
 };
 
-export const Act1: React.FC = () => {
-  return (
-    <AbsoluteFill>
-      <AgedTV amount={1}>
-        <Sequence from={T.a1_year} durationInFrames={DUR.a1_year}>
-          <FadeCut dur={DUR.a1_year}>
-            <Year />
-          </FadeCut>
-        </Sequence>
+/** Final crash beat: the thesis line, dark, still aged. */
+const Edge: React.FC = () => (
+  <AbsoluteFill style={{ backgroundColor: "#080706", justifyContent: "center", alignItems: "center" }}>
+    <div style={{ textAlign: "center" }}>
+      <div style={{ fontFamily: V4.font, fontWeight: 600, fontSize: 58, color: "rgba(237,231,219,0.75)" }}>
+        For decades, the edge
+      </div>
+      <div style={{ fontFamily: V4.font, fontWeight: 800, fontSize: 86, color: "#EDE7DB", marginTop: 10 }}>
+        belonged to <span style={{ color: V4.orange }}>them.</span>
+      </div>
+    </div>
+  </AbsoluteFill>
+);
 
-        <Sequence from={T.a1_banks} durationInFrames={DUR.a1_banks}>
-          <FadeCut dur={DUR.a1_banks}>
-            <BankFacade />
-            <CrashChart label="DOW JONES" seed={4} />
-            <BroadcastChrome />
-            <AlertBanner text="Global markets in freefall" from={10} />
-            <Subtitle lines={["The banks gambled trillions", "on mortgages built to fail."]} from={14} accentWord="fail." />
-          </FadeCut>
-        </Sequence>
-
-        <Sequence from={T.a1_bailout} durationInFrames={DUR.a1_bailout}>
-          <FadeCut dur={DUR.a1_bailout}>
-            <NumberBoard />
-            <BroadcastChrome />
-            <AlertBanner text="Institutions collapse overnight" from={8} />
-            <Subtitle lines={["When it all came crashing down,", "the banks were bailed out."]} from={12} accentWord="bailed out." />
-          </FadeCut>
-        </Sequence>
-
-        <Sequence from={T.a1_funds} durationInFrames={DUR.a1_funds}>
-          <FadeCut dur={DUR.a1_funds}>
-            <DivergeChart />
-            <BroadcastChrome />
-            <Subtitle lines={["The hedge funds saw it coming —", "and made billions betting against everyone."]} from={12} accentWord="billions" />
-          </FadeCut>
-        </Sequence>
-
-        <Sequence from={T.a1_cost} durationInFrames={DUR.a1_cost}>
-          <FadeCut dur={DUR.a1_cost}>
-            <ForeclosureSigns />
-            <BroadcastChrome />
-            <CostToll />
-            <Subtitle lines={["Ten million families lost everything.", "They paid for a game they were never in."]} from={44} accentWord="never in." />
-          </FadeCut>
-        </Sequence>
-      </AgedTV>
-    </AbsoluteFill>
-  );
-};
-
-/** The homes-lost counter, held, over the foreclosure row. */
 const CostToll: React.FC = () => {
   const frame = useCurrentFrame();
-  const out = interpolate(frame, [36, 44], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const out = interpolate(frame, [58, 66], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
-    <AbsoluteFill style={{ justifyContent: "flex-start", alignItems: "center", paddingTop: 150, opacity: out }}>
+    <AbsoluteFill style={{ justifyContent: "flex-start", alignItems: "center", paddingTop: 140, opacity: out }}>
       <CountUp
         from={2_000_000}
         to={10_000_000}
-        startFrame={4}
-        durationFrames={30}
-        style={{ fontSize: 128, fontWeight: 800, color: "#EDE7DB", letterSpacing: "-0.02em" }}
+        startFrame={3}
+        durationFrames={26}
+        style={{ fontSize: 124, fontWeight: 800, color: "#EDE7DB", letterSpacing: "-0.02em" }}
       />
       <div style={{ fontFamily: V4.font, fontSize: 30, color: "rgba(231,199,154,0.7)", letterSpacing: "0.16em", marginTop: 8 }}>
         HOMES LOST
@@ -104,3 +66,57 @@ const CostToll: React.FC = () => {
     </AbsoluteFill>
   );
 };
+
+export const Act1: React.FC = () => (
+  <AbsoluteFill>
+    <AgedTV amount={1}>
+      <Sequence from={T.c1} durationInFrames={DUR.c1}>
+        <Cut dur={DUR.c1}>
+          <Year />
+        </Cut>
+      </Sequence>
+
+      <Sequence from={T.c2} durationInFrames={DUR.c2}>
+        <Cut dur={DUR.c2}>
+          <BankFacade />
+          <CrashChart label="DOW JONES" seed={4} />
+          <Subtitle lines={["The banks gambled trillions", "on mortgages built to fail."]} from={8} accentWord="fail." />
+          <BroadcastChrome />
+          <AlertBanner text="Global markets in freefall" from={5} />
+        </Cut>
+      </Sequence>
+
+      <Sequence from={T.c3} durationInFrames={DUR.c3}>
+        <Cut dur={DUR.c3}>
+          <NumberBoard />
+          <Subtitle lines={["When it collapsed —", "the banks were bailed out."]} from={8} accentWord="bailed out." />
+          <BroadcastChrome />
+          <AlertBanner text="Institutions fail overnight" from={4} />
+        </Cut>
+      </Sequence>
+
+      <Sequence from={T.c4} durationInFrames={DUR.c4}>
+        <Cut dur={DUR.c4}>
+          <DivergeChart />
+          <Subtitle lines={["The hedge funds made billions", "betting against everyone else."]} from={8} accentWord="billions" />
+          <BroadcastChrome />
+        </Cut>
+      </Sequence>
+
+      <Sequence from={T.c5} durationInFrames={DUR.c5}>
+        <Cut dur={DUR.c5}>
+          <ForeclosureSigns />
+          <CostToll />
+          <Subtitle lines={["Ten million families paid for it."]} from={30} accentWord="paid" />
+          <BroadcastChrome />
+        </Cut>
+      </Sequence>
+
+      <Sequence from={T.c6} durationInFrames={DUR.c6}>
+        <Cut dur={DUR.c6}>
+          <Edge />
+        </Cut>
+      </Sequence>
+    </AgedTV>
+  </AbsoluteFill>
+);

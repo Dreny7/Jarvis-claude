@@ -129,13 +129,18 @@ export const Subtitle: React.FC<{
         position: "absolute",
         left: 0,
         right: 0,
-        bottom: 92,
+        bottom: 0,
+        paddingBottom: 92,
+        paddingTop: 130,
         display: "flex",
         flexDirection: "column",
+        justifyContent: "flex-end",
         alignItems: "center",
         gap: 4,
         opacity: on,
         transform: `translateY(${(1 - on) * 12}px)`,
+        // scrim so captions never fight the board/graphics behind them
+        background: "linear-gradient(180deg, transparent 0%, rgba(4,3,2,0.82) 55%)",
       }}
     >
       {lines.map((ln, i) => (
@@ -168,16 +173,16 @@ export const BroadcastChrome: React.FC<{ tag?: string }> = ({ tag = "ARCHIVE · 
       <div
         style={{
           position: "absolute",
-          top: 40,
-          left: 52,
+          top: 54,
+          left: 72,
           display: "flex",
           alignItems: "center",
           gap: 10,
           fontFamily: V4.mono,
-          fontSize: 22,
+          fontSize: 24,
           letterSpacing: 2,
-          color: "#E8E2D6",
-          opacity: 0.85,
+          color: "#F2EDE2",
+          textShadow: "0 1px 8px rgba(0,0,0,0.9)",
         }}
       >
         <span
@@ -194,13 +199,14 @@ export const BroadcastChrome: React.FC<{ tag?: string }> = ({ tag = "ARCHIVE · 
       <div
         style={{
           position: "absolute",
-          top: 42,
-          right: 52,
+          top: 56,
+          right: 72,
           fontFamily: V4.mono,
-          fontSize: 20,
+          fontSize: 22,
           letterSpacing: 3,
-          color: "#E8E2D6",
-          opacity: 0.7,
+          color: "#F2EDE2",
+          opacity: 0.9,
+          textShadow: "0 1px 8px rgba(0,0,0,0.9)",
         }}
       >
         {tag}
@@ -229,39 +235,38 @@ export const AlertBanner: React.FC<{ text: string; from?: number }> = ({ text, f
         opacity: w > 0.02 ? 1 : 0,
       }}
     >
-      <div
-        style={{
-          backgroundColor: V4.orangeDeep,
-          color: "#0A0A0B",
-          fontFamily: V4.font,
-          fontWeight: 800,
-          fontSize: 22,
-          letterSpacing: 1,
-          display: "flex",
-          alignItems: "center",
-          padding: "0 18px",
-          transform: `scaleX(${w})`,
-          transformOrigin: "left",
-        }}
-      >
-        MARKET ALERT
-      </div>
-      <div
-        style={{
-          backgroundColor: "rgba(10,10,11,0.85)",
-          color: "#F2EEE6",
-          fontFamily: V4.font,
-          fontWeight: 600,
-          fontSize: 22,
-          display: "flex",
-          alignItems: "center",
-          padding: "0 20px",
-          whiteSpace: "nowrap",
-          transform: `scaleX(${w})`,
-          transformOrigin: "left",
-        }}
-      >
-        {text}
+      {/* clip-reveal (no scaleX — that distorted the glyphs) */}
+      <div style={{ display: "flex", clipPath: `inset(0 ${(1 - w) * 100}% 0 0)` }}>
+        <div
+          style={{
+            backgroundColor: V4.orangeDeep,
+            color: "#0A0A0B",
+            fontFamily: V4.font,
+            fontWeight: 800,
+            fontSize: 22,
+            letterSpacing: 1,
+            display: "flex",
+            alignItems: "center",
+            padding: "0 18px",
+          }}
+        >
+          MARKET ALERT
+        </div>
+        <div
+          style={{
+            backgroundColor: "rgba(10,10,11,0.85)",
+            color: "#F2EEE6",
+            fontFamily: V4.font,
+            fontWeight: 600,
+            fontSize: 22,
+            display: "flex",
+            alignItems: "center",
+            padding: "0 20px",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {text}
+        </div>
       </div>
     </div>
   );
