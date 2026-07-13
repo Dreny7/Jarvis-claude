@@ -11,7 +11,7 @@ import { V4 } from "../theme";
 import { T, DUR } from "../timeline";
 import { TypeOn, KineticLine, CountUp } from "../components/text";
 import { PlusGrid } from "../components/vfx";
-import { SingleFacet, FACETS } from "../components/FacetMark";
+import { SingleFacet, FacetMark, FACETS } from "../components/FacetMark";
 
 // ACT 4 — the product burst. Real facts only (§1 of the brief).
 
@@ -86,9 +86,9 @@ const Composer: React.FC = () => {
     <AbsoluteFill style={{ backgroundColor: V4.bg, justifyContent: "center", alignItems: "center" }}>
       <div style={{ transform: `scale(${zoom})` }}>
         <Panel style={{ width: 1440, padding: 44 }}>
-          {/* header */}
+          {/* header — full five-facet mark in-product (brand review finding) */}
           <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 28 }}>
-            <SingleFacet index={0} width={30} />
+            <FacetMark width={54} facetProgress={[1, 1, 1, 1, 1]} />
             <span style={{ fontFamily: V4.font, fontWeight: 600, fontSize: 24, color: V4.dim }}>
               ecelon — new strategy
             </span>
@@ -142,7 +142,7 @@ const Composer: React.FC = () => {
                 />
               </svg>
               <div style={{ position: "absolute", left: 24, top: 18, fontFamily: V4.mono, fontSize: 17, letterSpacing: 2, color: V4.faint }}>
-                BACKTEST · 2019 → 2025 · LIVE MARKET DATA
+                BACKTEST · 2019 → 2025 · HISTORICAL MARKET DATA
               </div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 18, justifyContent: "center" }}>

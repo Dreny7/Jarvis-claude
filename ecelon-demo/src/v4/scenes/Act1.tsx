@@ -179,14 +179,18 @@ const Notice: React.FC = () => {
   );
 };
 
-/** 1d — odometer of loss → "Nobody saw it coming." */
+/**
+ * 1d — odometer of loss → "Nobody saw it coming."
+ * 90 frames: count 2–32, HOLD the full 10,000,000 (32–48), fade, then the
+ * hinge line holds ~1.2s — both beats must land (review finding).
+ */
 const Toll: React.FC = () => {
   const frame = useCurrentFrame();
-  const counterOut = interpolate(frame, [38, 46], [1, 0], {
+  const counterOut = interpolate(frame, [48, 56], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const lineIn = interpolate(frame, [46, 56], [0, 1], {
+  const lineIn = interpolate(frame, [56, 66], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -197,7 +201,7 @@ const Toll: React.FC = () => {
           from={8_214_760}
           to={10_000_000}
           startFrame={2}
-          durationFrames={38}
+          durationFrames={30}
           style={{ fontSize: 110, fontWeight: 700, color: V4.white, letterSpacing: "-0.02em" }}
         />
         <div style={{ fontFamily: V4.font, fontSize: 30, color: V4.dim, marginTop: 14, letterSpacing: "0.14em" }}>

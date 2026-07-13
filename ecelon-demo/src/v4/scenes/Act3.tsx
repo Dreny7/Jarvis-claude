@@ -31,14 +31,10 @@ export const Act3: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#050506", justifyContent: "center", alignItems: "center" }}>
-      <div style={{ transform: `translateY(${lift}px)`, padding: "0 220px" }}>
-        <KineticLine
-          text="So we built the algorithm for everyone else."
-          delay={16}
-          stagger={4}
-          fontSize={78}
-          fontWeight={700}
-        />
+      {/* explicit two-line break — avoids the "else." widow (review finding) */}
+      <div style={{ transform: `translateY(${lift}px)`, display: "flex", flexDirection: "column", gap: 8 }}>
+        <KineticLine text="So we built the algorithm" delay={16} stagger={4} fontSize={78} fontWeight={700} />
+        <KineticLine text="for everyone else." delay={38} stagger={4} fontSize={78} fontWeight={700} />
       </div>
       {frame >= IGNITE && (
         <div

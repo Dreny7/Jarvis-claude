@@ -73,10 +73,17 @@ export const DataWall: React.FC<{
   );
 };
 
-/** Microsecond clock — the "machines live below human time" cue. */
-export const MicroClock: React.FC<{ style?: React.CSSProperties }> = ({ style }) => {
+/**
+ * Microsecond clock — the "machines live below human time" cue.
+ * epochFrame keeps time continuous across scene cuts (scenes pass their
+ * global start offset so the readout never jumps backward).
+ */
+export const MicroClock: React.FC<{ epochFrame?: number; style?: React.CSSProperties }> = ({
+  epochFrame = 0,
+  style,
+}) => {
   const frame = useCurrentFrame();
-  const us = frame * 33333 + 137; // ~1/30s per frame in µs
+  const us = (frame + epochFrame) * 33333 + 137; // ~1/30s per frame in µs
   const s = 34 + Math.floor(us / 1e6);
   const rem = us % 1e6;
   const txt = `09:30:${String(s).padStart(2, "0")}.${String(rem).padStart(6, "0")}`;
@@ -85,8 +92,12 @@ export const MicroClock: React.FC<{ style?: React.CSSProperties }> = ({ style })
       style={{
         fontFamily: V4.mono,
         fontVariantNumeric: "tabular-nums",
-        color: V4.faint,
+        color: V4.dim,
         letterSpacing: 2,
+        backgroundColor: "rgba(8,8,10,0.78)",
+        border: "1px solid rgba(245,245,247,0.10)",
+        borderRadius: 8,
+        padding: "8px 16px",
         ...style,
       }}
     >

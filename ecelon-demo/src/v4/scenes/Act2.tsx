@@ -34,7 +34,7 @@ const Someone: React.FC = () => {
 const Billions: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: V4.bgDeep }}>
     <DataWall baseSpeed={5} accel={3} opacity={0.4} />
-    <MicroClock style={{ position: "absolute", top: "15.5%", right: 70, fontSize: 30 }} />
+    <MicroClock epochFrame={110} style={{ position: "absolute", top: "15.5%", right: 90, fontSize: 28 }} />
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", gap: 26 }}>
       <KineticLine text="While families lost everything —" delay={4} fontSize={62} fontWeight={600} color={V4.dim} />
       <KineticLine text="algorithms made {orange:billions.}" delay={30} fontSize={92} fontWeight={800} punchy />
@@ -51,7 +51,7 @@ const Decades: React.FC = () => {
     <AbsoluteFill style={{ backgroundColor: V4.bgDeep }}>
       <DataWall baseSpeed={8} accel={5} opacity={0.3} />
       <WhipChart seed={seed} draw={draw} opacity={0.55} />
-      <MicroClock style={{ position: "absolute", top: "15.5%", right: 70, fontSize: 30 }} />
+      <MicroClock epochFrame={200} style={{ position: "absolute", top: "15.5%", right: 90, fontSize: 28 }} />
       <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", padding: "0 200px" }}>
         <KineticLine
           text="Hedge funds have run on {orange:algorithms} for decades."
@@ -75,7 +75,7 @@ const Fragments: React.FC = () => {
   return (
     <AbsoluteFill style={{ backgroundColor: V4.bgDeep }}>
       <DataWall baseSpeed={12} accel={14} opacity={0.34} />
-      <MicroClock style={{ position: "absolute", top: "15.5%", right: 70, fontSize: 30 }} />
+      <MicroClock epochFrame={290} style={{ position: "absolute", top: "15.5%", right: 90, fontSize: 28 }} />
       {words.map(({ w, from, to }) => {
         if (frame < from || frame >= to) return null;
         const local = frame - from;

@@ -123,6 +123,6 @@ export const Wordmark: React.FC<{ fontSize: number; color?: string }> = ({
     }}
   >
     ecelon
-    <span style={{ fontSize: fontSize * 0.28, verticalAlign: "super", fontWeight: 500 }}>™</span>
+    <span style={{ fontSize: fontSize * 0.22, verticalAlign: "super", fontWeight: 500 }}>®</span>
   </span>
 );

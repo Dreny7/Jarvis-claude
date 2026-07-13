@@ -41,10 +41,12 @@ export const ScanFace: React.FC<{
     extrapolateRight: "clamp",
   });
 
+  // Labels read as the fund's machine describing its own advantage —
+  // not as measurements of a retail victim (narrative review finding).
   const telemetry: { f: number; x: number; y: number; k: string; v: string }[] = [
-    { f: scanStart + 16, x: 172, y: 148, k: "SUBJ", v: "RETAIL-7731" },
-    { f: scanStart + 34, x: 148, y: 226, k: "REACTION", v: "412 ms" },
-    { f: scanStart + 52, x: 196, y: 330, k: "EDGE", v: "NONE" },
+    { f: scanStart + 16, x: 172, y: 148, k: "MODEL", v: "HF-ALGO-04" },
+    { f: scanStart + 34, x: 148, y: 226, k: "LATENCY", v: "380 µs" },
+    { f: scanStart + 52, x: 196, y: 330, k: "EDGE", v: "STRUCTURAL" },
   ];
 
   return (

@@ -13,7 +13,9 @@ export const Grain: React.FC<{ intensity: number }> = ({ intensity }) => {
         inset: 0,
         width: "100%",
         height: "100%",
-        mixBlendMode: "overlay",
+        // "screen" (not "overlay") — overlay math cancels to ~0 on near-black
+        // scenes, which nulled the grain entirely (caught in review).
+        mixBlendMode: "screen",
         opacity: intensity,
         pointerEvents: "none",
       }}

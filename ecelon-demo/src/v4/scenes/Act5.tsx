@@ -136,13 +136,13 @@ export const Act5: React.FC = () => {
       <div
         style={{
           position: "absolute",
-          bottom: 44,
+          bottom: 56,
           width: "100%",
           textAlign: "center",
           opacity: disclosureIn,
           fontFamily: V4.font,
-          fontSize: 20,
-          color: V4.faint,
+          fontSize: 22,
+          color: V4.dim,
           letterSpacing: "0.04em",
         }}
       >

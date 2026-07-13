@@ -8,7 +8,7 @@ export const T = {
   a1a: 0, //   "2008." types on
   a1b: 85, //  house silhouette, window light dies
   a1c: 205, // foreclosure notice document
-  a1d: 285, // odometer → "Nobody saw it coming."
+  a1d: 270, // odometer → "Nobody saw it coming." (extended so both beats hold)
 
   // ACT 2 — the reveal (music slams in)
   a2a: 360, // "Someone did." + scan-grid face
