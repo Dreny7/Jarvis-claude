@@ -4,6 +4,7 @@ import { V4 } from "../theme";
 import { KineticLine } from "../components/text";
 import { FacetMark, Wordmark } from "../components/FacetMark";
 import { PlusGrid } from "../components/vfx";
+import { GlowField } from "../components/ios";
 
 // OUTRO — the complete lockup enters whole (no facet assembly), then
 // tagline → callback → CTA → verbatim beta disclosure. Music still driving.
@@ -23,6 +24,7 @@ export const Act5: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ backgroundColor: V4.bgDeep, justifyContent: "center", alignItems: "center" }}>
+      <GlowField intensity={0.6} />
       <PlusGrid opacity={interpolate(frame, [130, 170], [0, 0.05], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })} cell={72} />
 
       {/* complete lockup — enters as one piece */}

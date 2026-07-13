@@ -164,30 +164,61 @@ export const NumberBoard: React.FC = () => {
   );
 };
 
-/** Row of foreclosure signs receding — the human cost. */
+/** A field of foreclosure signs the camera pushes into — the human cost.
+ * Signs keep appearing as the counter climbs; depth via scale + height. */
 export const ForeclosureSigns: React.FC = () => {
   const frame = useCurrentFrame();
-  const drift = interpolate(frame, [0, 120], [0, -60]);
-  const signs = [
-    { x: 150, s: 1.0, o: 1 },
-    { x: 560, s: 0.86, o: 0.85 },
-    { x: 940, s: 0.72, o: 0.62 },
-    { x: 1280, s: 0.6, o: 0.42 },
-    { x: 1560, s: 0.5, o: 0.28 },
-  ];
+  // slow dolly-in: the whole field grows toward the viewer for the full beat
+  const push = 1 + interpolate(frame, [0, 120], [0, 0.16]);
+  const drift = interpolate(frame, [0, 120], [0, -80]);
+
+  // deterministic field: 16 signs, near→far, staggered arrivals with the count
+  const signs: { x: number; y: number; s: number; o: number; r: number; at: number }[] = [];
+  for (let i = 0; i < 16; i++) {
+    const h1 = Math.sin(i * 12.9898) * 43758.5453;
+    const h2 = Math.sin(i * 78.233) * 12543.123;
+    const rx = h1 - Math.floor(h1);
+    const ry = h2 - Math.floor(h2);
+    const depth = i / 15; // 0 = nearest, 1 = farthest
+    signs.push({
+      x: 40 + rx * 1760,
+      y: 210 + depth * 300 + ry * 60, // farther = higher on screen (fills the mid band)
+      s: 1.05 - depth * 0.62,
+      o: 1 - depth * 0.66,
+      r: (rx - 0.5) * 7,
+      at: i < 5 ? 0 : 6 + (i - 5) * 4, // first row is there; the rest keep coming
+    });
+  }
+
   return (
-    <AbsoluteFill style={{ backgroundColor: "#0B0A09" }}>
-      {/* faint ground */}
-      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: "38%", background: "linear-gradient(180deg, transparent, rgba(20,17,14,0.9))" }} />
-      {signs.map((sg, i) => (
-        <div key={i} style={{ position: "absolute", left: sg.x + drift * (1 - sg.s), bottom: 240, transform: `scale(${sg.s})`, opacity: sg.o, transformOrigin: "bottom left" }}>
-          <div style={{ width: 6, height: 150, backgroundColor: "#2A241C", marginLeft: 92 }} />
-          <div style={{ position: "absolute", top: 0, width: 210, padding: "16px 10px", backgroundColor: "#DED8CB", transform: "rotate(-2deg)", boxShadow: "0 10px 30px rgba(0,0,0,0.7)" }}>
-            <div style={{ fontFamily: V4.font, fontWeight: 800, fontSize: 26, color: "#161310", textAlign: "center", letterSpacing: 1 }}>FORECLOSED</div>
-            <div style={{ fontFamily: V4.mono, fontSize: 13, color: "#3A342A", textAlign: "center", marginTop: 4, letterSpacing: 2 }}>BANK OWNED</div>
-          </div>
-        </div>
-      ))}
+    <AbsoluteFill style={{ backgroundColor: "#0B0A09", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: -60, transform: `scale(${push})` }}>
+        {/* faint ground */}
+        <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: "48%", background: "linear-gradient(180deg, transparent, rgba(20,17,14,0.9))" }} />
+        {signs.map((sg, i) => {
+          const inO = interpolate(frame, [sg.at, sg.at + 5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+          return (
+            <div
+              key={i}
+              style={{
+                position: "absolute",
+                left: sg.x + drift * (1 - sg.s),
+                bottom: sg.y,
+                transform: `scale(${sg.s}) rotate(${sg.r}deg)`,
+                opacity: sg.o * inO,
+                transformOrigin: "bottom left",
+                zIndex: Math.round(sg.s * 100),
+              }}
+            >
+              <div style={{ width: 6, height: 150, backgroundColor: "#2A241C", marginLeft: 92 }} />
+              <div style={{ position: "absolute", top: 0, width: 210, padding: "16px 10px", backgroundColor: "#DED8CB", transform: "rotate(-2deg)", boxShadow: "0 10px 30px rgba(0,0,0,0.7)" }}>
+                <div style={{ fontFamily: V4.font, fontWeight: 800, fontSize: 26, color: "#161310", textAlign: "center", letterSpacing: 1 }}>FORECLOSED</div>
+                <div style={{ fontFamily: V4.mono, fontSize: 13, color: "#3A342A", textAlign: "center", marginTop: 4, letterSpacing: 2 }}>BANK OWNED</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </AbsoluteFill>
   );
 };
@@ -214,4 +245,112 @@ export const BankFacade: React.FC = () => {
       </div>
     </AbsoluteFill>
   );
+};
+
+/** Housing rollover — the origin story. Case-Shiller-shaped rise then cliff. */
+export const HousingChart: React.FC = () => {
+  const frame = useCurrentFrame();
+  const N = 56;
+  const pts: string[] = [];
+  for (let i = 0; i < N; i++) {
+    const t = i / (N - 1);
+    // long steady climb (2000→2006), rounded top, hard fall (2007→2009)
+    const base =
+      t < 0.62 ? 620 - t * 560 : t < 0.72 ? 273 - Math.sin((t - 0.62) * 18) * 18 : 260 + (t - 0.72) * 1350;
+    const wob = (rand(77 + i) - 0.5) * 16;
+    pts.push(`${140 + t * 1640},${Math.min(700, base + wob)}`);
+  }
+  const draw = interpolate(frame, [4, 68], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const len = 2600;
+  return (
+    <AbsoluteFill>
+      <svg width={1920} height={1080} viewBox="0 0 1920 1080">
+        {[260, 400, 540, 680].map((gy) => (
+          <line key={gy} x1={140} y1={gy} x2={1780} y2={gy} stroke={AMBER_DIM} strokeWidth={1} opacity={0.22} />
+        ))}
+        <polyline
+          points={pts.join(" ")}
+          fill="none"
+          stroke={AMBER}
+          strokeWidth={4.5}
+          strokeDasharray={len}
+          strokeDashoffset={len * (1 - draw)}
+          style={{ filter: "drop-shadow(0 0 7px rgba(255,150,80,0.4))" }}
+        />
+      </svg>
+      <div style={{ position: "absolute", top: 132, left: 140, fontFamily: V4.mono, fontSize: 25, letterSpacing: 3, color: AMBER, backgroundColor: "rgba(5,4,3,0.6)", padding: "8px 14px" }}>
+        U.S. HOME PRICES · 2000 → 2009
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+/** Wire-service headlines — factual, original phrasing, typed like a feed. */
+export const WireHeadlines: React.FC = () => {
+  const frame = useCurrentFrame();
+  const WIRES = [
+    { t: "09·15·2008 04:57", txt: "LEHMAN BROTHERS FILES FOR BANKRUPTCY — LARGEST IN U.S. HISTORY", d: 4 },
+    { t: "09·16·2008 21:04", txt: "FED RESCUES AIG WITH $85,000,000,000 LOAN", d: 34 },
+    { t: "10·03·2008 13:22", txt: "CONGRESS PASSES $700,000,000,000 BANK BAILOUT", d: 62 },
+  ];
+  return (
+    <AbsoluteFill style={{ padding: "220px 150px", display: "flex", flexDirection: "column", gap: 66 }}>
+      {WIRES.map((w) => {
+        const on = interpolate(frame, [w.d, w.d + 6], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+        const chars = Math.max(0, Math.floor((frame - w.d) * 1.6));
+        return (
+          <div key={w.t} style={{ opacity: on }}>
+            <div style={{ fontFamily: V4.mono, fontSize: 20, letterSpacing: 3, color: AMBER_DIM, marginBottom: 10 }}>
+              ⚡ WIRE · {w.t} ET
+            </div>
+            <div style={{ fontFamily: V4.mono, fontSize: 38, fontWeight: 700, letterSpacing: 1, color: AMBER, lineHeight: 1.3 }}>
+              {w.txt.slice(0, chars)}
+              {chars < w.txt.length ? <span style={{ opacity: 0.6 }}>▌</span> : null}
+            </div>
+          </div>
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+
+/** The human toll in numbers — $19.2T erased, 8.8M jobs. Heavy, held. */
+export const WealthToll: React.FC = () => {
+  const frame = useCurrentFrame();
+  const secondIn = interpolate(frame, [52, 62], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return (
+    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", gap: 60 }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ fontFamily: V4.font, fontWeight: 800, fontSize: 130, color: "#EDE7DB", letterSpacing: "-0.02em" }}>
+          <CrashCount to={19.2} startFrame={4} durationFrames={34} format={(v) => `$${v.toFixed(1)} TRILLION`} />
+        </div>
+        <div style={{ fontFamily: V4.font, fontSize: 32, color: "rgba(231,199,154,0.7)", letterSpacing: "0.14em", marginTop: 8 }}>
+          OF HOUSEHOLD WEALTH — ERASED
+        </div>
+      </div>
+      <div style={{ textAlign: "center", opacity: secondIn, transform: `translateY(${(1 - secondIn) * 20}px)` }}>
+        <div style={{ fontFamily: V4.font, fontWeight: 800, fontSize: 96, color: V4.orange, letterSpacing: "-0.02em" }}>
+          8,800,000 JOBS
+        </div>
+        <div style={{ fontFamily: V4.font, fontSize: 30, color: "rgba(231,199,154,0.7)", letterSpacing: "0.14em", marginTop: 6 }}>
+          GONE WITH THEM
+        </div>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+const CrashCount: React.FC<{ to: number; startFrame: number; durationFrames: number; format: (v: number) => string }> = ({
+  to,
+  startFrame,
+  durationFrames,
+  format,
+}) => {
+  const frame = useCurrentFrame();
+  const v = interpolate(frame, [startFrame, startFrame + durationFrames], [0, to], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: (t) => 1 - Math.pow(1 - t, 3),
+  });
+  return <span style={{ fontVariantNumeric: "tabular-nums" }}>{format(v)}</span>;
 };

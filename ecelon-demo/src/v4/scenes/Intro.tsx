@@ -5,6 +5,7 @@ import { T, DUR } from "../timeline";
 import { KineticLine, TypeOn } from "../components/text";
 import { FacetMark, Wordmark } from "../components/FacetMark";
 import { PROFILE } from "../components/ScanFace";
+import { GlowField } from "../components/ios";
 
 // ECELON INTRO — the music flips, the palette inverts, the energy spikes.
 // Slam (black-on-orange) → reference-photo silhouette lockup → thesis → 3 how-beats.
@@ -92,6 +93,7 @@ const Reveal: React.FC = () => {
 /** Thesis on black — the pivot line, huge. */
 const Built: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: "#050506", justifyContent: "center", alignItems: "center" }}>
+    <GlowField intensity={0.7} />
     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
       <KineticLine text="We built the algorithm" delay={4} stagger={2.5} fontSize={92} fontWeight={800} punchy />
       <KineticLine text="for {orange:everyone} else." delay={16} stagger={2.5} fontSize={92} fontWeight={800} punchy />
@@ -106,6 +108,7 @@ const HowBeat: React.FC<{ n: string; line: string; children: React.ReactNode }> 
   const s = spring({ frame, fps, config: { damping: 14, stiffness: 280, mass: 0.6 } });
   return (
     <AbsoluteFill style={{ backgroundColor: V4.bg, justifyContent: "center", alignItems: "center", gap: 40 }}>
+      <GlowField intensity={0.8} />
       <div style={{ display: "flex", alignItems: "center", gap: 26, opacity: Math.min(1, s * 1.5), transform: `translateY(${(1 - s) * 30}px)` }}>
         <span style={{ fontFamily: V4.mono, fontSize: 30, color: V4.orange, fontWeight: 700 }}>{n}</span>
         <span style={{ fontFamily: V4.font, fontWeight: 800, fontSize: 84, letterSpacing: "-0.03em", color: V4.white }}>{line}</span>
@@ -116,7 +119,20 @@ const HowBeat: React.FC<{ n: string; line: string; children: React.ReactNode }> 
 };
 
 const MiniPrompt: React.FC = () => (
-  <div style={{ width: 900, border: "1.5px solid rgba(255,107,44,0.55)", borderRadius: 14, padding: "22px 28px", fontFamily: V4.font, fontSize: 30, color: V4.white, backgroundColor: V4.panel }}>
+  <div
+    style={{
+      width: 900,
+      border: "1.5px solid rgba(255,107,44,0.55)",
+      borderRadius: 20,
+      padding: "22px 28px",
+      fontFamily: V4.font,
+      fontSize: 30,
+      color: V4.white,
+      backgroundColor: "rgba(22,22,26,0.72)",
+      backdropFilter: "blur(24px)",
+      boxShadow: "0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)",
+    }}
+  >
     <TypeOn text="Trade momentum on large-caps. Cap my risk at 2% a day." startFrame={4} charsPerFrame={2.2} />
   </div>
 );
@@ -151,10 +167,10 @@ const MiniFill: React.FC = () => {
   const frame = useCurrentFrame();
   const on = frame > 6;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 18, width: 900, border: "1px solid rgba(255,107,44,0.5)", borderRadius: 14, padding: "20px 26px", backgroundColor: "rgba(255,75,0,0.08)", opacity: on ? 1 : 0 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 18, width: 900, border: "1px solid rgba(255,107,44,0.5)", borderRadius: 20, padding: "20px 26px", backgroundColor: "rgba(255,75,0,0.08)", backdropFilter: "blur(24px)", opacity: on ? 1 : 0 }}>
       <span style={{ fontFamily: V4.font, fontWeight: 700, fontSize: 28, color: V4.white }}>Alpha Trader</span>
       <span style={{ fontFamily: V4.font, fontSize: 28, color: V4.dim }}>opened NVDA @ $142.80</span>
-      <span style={{ marginLeft: "auto", fontFamily: V4.font, fontWeight: 800, fontSize: 22, color: V4.orange, border: `1.5px solid ${V4.orange}`, borderRadius: 8, padding: "4px 12px" }}>BUY</span>
+      <span style={{ marginLeft: "auto", fontFamily: V4.font, fontWeight: 800, fontSize: 22, color: V4.orange, border: `1.5px solid ${V4.orange}`, borderRadius: 999, padding: "4px 14px" }}>BUY</span>
     </div>
   );
 };
