@@ -10,6 +10,7 @@ export const V4 = {
   orange: "#FF6B2C", // core
   orangeDeep: "#FF4B00", // CTA / emphasis
   orangeHi: "#FF7A3D", // highlight / rim
+  neon: "#FF4B00", // FLAT brand field — never a gradient
 
   white: "#F5F5F7",
   dim: "rgba(245,245,247,0.55)",

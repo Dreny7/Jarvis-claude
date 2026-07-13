@@ -1,8 +1,11 @@
-// Single source of truth. 30fps · 2280f = 76.0s.
-// LONG CRASH (31s, heart-first) → SLAM (music flip + boom) → HIGH-DOPAMINE
-// PRODUCT (iOS-sleek, dense animation) → OUTRO.
+// Single source of truth. 30fps · 2330f = 77.7s.
+// LONG CRASH (31s, heart-first) → CRT power-off + SLAM (music flip) →
+// BEAT-SYNCED PRODUCT (every boundary sits on a Highway-to-Hell onset,
+// measured from the file: chords at slam+66/+131/+164..., drums at +259).
 
 export const FPS = 30;
+
+const SLAM = 930;
 
 export const T = {
   // THE ARCHIVE — recreated 2008, escalating
@@ -16,24 +19,23 @@ export const T = {
   c8: 730, //  $19.2T wealth erased · 8.8M jobs lost
   c9: 850, //  "For decades, the edge belonged to them."
 
-  // FLIP
-  slam: 930, //   boom + NOT ANYMORE. (HTH enters)
-  reveal: 1000, // silhouette + lockup on orange
-  built: 1090, // "We built the algorithm for everyone else."
-  how1: 1170,
-  how2: 1210,
-  how3: 1250,
+  // FLIP — CRT power-off runs slam-14 → slam, chord 1 hits ON the slam
+  slam: SLAM, //        neon shockwave + NOT ANYMORE.   (chord 1)
+  reveal: SLAM + 66, // lockup on flat neon             (chord 2)
+  built: SLAM + 131, // "We built the algorithm…"       (chord 3)
+  punch: SLAM + 194, // Type it. Test it. Trade it.     (chords 4/5/6)
 
-  // PRODUCT — fast, dense
-  p1: 1290, //   composer money shot (iOS-sleek)
-  agents: 1470, // your agent desk (6 archetypes, 2 modes)
-  p2: 1590, //   hard limits / trust
-  p3: 1740, //   71%
-  p4: 1830, //   every market, one direct link
+  // PRODUCT — beat-locked
+  phone: SLAM + 259, // the phone flies in AS THE DRUMS ENTER
+  p1: SLAM + 536, //    composer money shot
+  agents: SLAM + 662, // your agent desk
+  p2: SLAM + 786, //   hard limits / trust
+  p3: SLAM + 896, //   71%
+  p4: SLAM + 974, //   every market, one direct link
 
   // OUTRO
-  a5: 1980,
-  end: 2280,
+  a5: SLAM + 1098,
+  end: 2330,
 } as const;
 
 export const DUR = {
@@ -48,10 +50,9 @@ export const DUR = {
   c9: T.slam - T.c9,
   slam: T.reveal - T.slam,
   reveal: T.built - T.reveal,
-  built: T.how1 - T.built,
-  how1: T.how2 - T.how1,
-  how2: T.how3 - T.how2,
-  how3: T.p1 - T.how3,
+  built: T.punch - T.built,
+  punch: T.phone - T.punch,
+  phone: T.p1 - T.phone,
   p1: T.agents - T.p1,
   agents: T.p2 - T.agents,
   p2: T.p3 - T.p2,

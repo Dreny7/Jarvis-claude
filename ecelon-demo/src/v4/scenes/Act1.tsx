@@ -151,9 +151,9 @@ export const Act1: React.FC = () => (
         <Cut dur={DUR.c6}>
           <DivergeChart />
           <Subtitle
-            lines={["The hedge funds saw it coming.", "Their algorithms made billions."]}
+            lines={["Their algorithms saw it coming —", "and they bet against your street."]}
             from={14}
-            accentWord="billions."
+            accentWord="your street."
           />
           <BroadcastChrome />
         </Cut>
@@ -164,7 +164,7 @@ export const Act1: React.FC = () => (
         <Cut dur={DUR.c7}>
           <ForeclosureSigns />
           <CostToll />
-          <Subtitle lines={["Ten million families paid for it."]} from={40} accentWord="paid" />
+          <Subtitle lines={["Every point they won", "was somebody's front door."]} from={40} accentWord="front door." />
           <BroadcastChrome />
         </Cut>
       </Sequence>

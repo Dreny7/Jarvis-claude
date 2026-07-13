@@ -20,9 +20,9 @@ const Stage: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 /* ---------------- p1 — the money shot ---------------- */
 
 const PROMPT = "Trade momentum on large-caps. Cap my risk at 2% a day.";
-const TYPE_END = 40;
-const BT_START = 46;
-const DEPLOY = 104;
+const TYPE_END = 26;
+const BT_START = 30;
+const DEPLOY = 82;
 const FEED = [
   { agent: "Alpha Trader", txt: "opened NVDA @ $142.80", tag: "BUY", when: "2m" },
   { agent: "Mean Reversion", txt: "closed SPY ▲ +1.2%", tag: "SELL", when: "14m" },
@@ -83,7 +83,7 @@ const Composer: React.FC = () => {
               minHeight: 92,
             }}
           >
-            <TypeOn text={PROMPT} startFrame={4} charsPerFrame={1.6} />
+            <TypeOn text={PROMPT} startFrame={2} charsPerFrame={2.4} />
           </div>
 
           <div style={{ display: "flex", gap: 30, marginTop: 30, opacity: interpolate(frame, [BT_START - 4, BT_START + 8], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}>
