@@ -146,6 +146,8 @@ skills exist and are usually worth invoking alongside this one:
 - **ai-video-generation** — generate realistic/live-action-style footage
   (Veo, Sora, Runway, Luma, Kling) as a base layer and composite Remotion
   graphics over it via `<OffthreadVideo>`.
+- **footage-libraries** — pull real, licensed/public-domain stock b-roll
+  (Pexels, Pixabay, Internet Archive, Storyblocks, etc.) as base footage.
 
 ## Guardrails
 
