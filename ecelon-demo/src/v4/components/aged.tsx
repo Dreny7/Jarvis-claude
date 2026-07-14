@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { noise2D } from "@remotion/noise";
 import { V4 } from "../theme";
 
@@ -94,35 +94,72 @@ export const AgedTV: React.FC<{
   );
 };
 
-/** Broadcast-style subtitle caption near the bottom. */
+/**
+ * Broadcast-style subtitle caption near the bottom.
+ * `soft`: the heaviest lines get a gentle word-by-word rise instead of one
+ * block fade — a slower, quieter reveal for the "almost crying" beats,
+ * rather than the snappy default used on the data/wire beats.
+ */
 export const Subtitle: React.FC<{
   lines: string[];
   /** local frame the caption appears */
   from?: number;
   accentWord?: string;
-}> = ({ lines, from = 6, accentWord }) => {
+  soft?: boolean;
+}> = ({ lines, from = 6, accentWord, soft = false }) => {
   const frame = useCurrentFrame();
-  const on = interpolate(frame, [from, from + 8], [0, 1], {
+  const { fps } = useVideoConfig();
+  const on = interpolate(frame, [from, from + (soft ? 16 : 8)], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
+
+  const isAccent = (w: string) =>
+    !!accentWord && accentWord.toLowerCase().replace(/[.,]/g, "").includes(w.toLowerCase().replace(/[.,]/g, ""));
+
   const renderLine = (ln: string, key: number) => {
-    if (!accentWord) return <span key={key}>{ln}</span>;
-    const parts = ln.split(new RegExp(`(${accentWord})`, "i"));
+    if (!soft) {
+      if (!accentWord) return <span key={key}>{ln}</span>;
+      const parts = ln.split(new RegExp(`(${accentWord})`, "i"));
+      return (
+        <span key={key}>
+          {parts.map((p, i) =>
+            p.toLowerCase() === accentWord.toLowerCase() ? (
+              <span key={i} style={{ color: V4.orange }}>
+                {p}
+              </span>
+            ) : (
+              <span key={i}>{p}</span>
+            ),
+          )}
+        </span>
+      );
+    }
+    // soft mode: each word rises in on its own gentle spring, staggered
+    const words = ln.split(" ");
     return (
       <span key={key}>
-        {parts.map((p, i) =>
-          p.toLowerCase() === accentWord.toLowerCase() ? (
-            <span key={i} style={{ color: V4.orange }}>
-              {p}
+        {words.map((w, i) => {
+          const s = spring({ frame: frame - from - i * 4, fps, config: { damping: 24, stiffness: 120, mass: 1 } });
+          return (
+            <span
+              key={i}
+              style={{
+                display: "inline-block",
+                opacity: Math.min(1, s * 1.3),
+                transform: `translateY(${(1 - s) * 10}px)`,
+                color: isAccent(w) ? V4.orange : "#F2EEE6",
+                marginRight: "0.32em",
+              }}
+            >
+              {w}
             </span>
-          ) : (
-            <span key={i}>{p}</span>
-          ),
-        )}
+          );
+        })}
       </span>
     );
   };
+
   return (
     <div
       style={{
@@ -137,8 +174,8 @@ export const Subtitle: React.FC<{
         justifyContent: "flex-end",
         alignItems: "center",
         gap: 4,
-        opacity: on,
-        transform: `translateY(${(1 - on) * 12}px)`,
+        opacity: soft ? 1 : on,
+        transform: soft ? undefined : `translateY(${(1 - on) * 12}px)`,
         // scrim so captions never fight the board/graphics behind them
         background: "linear-gradient(180deg, transparent 0%, rgba(4,3,2,0.82) 55%)",
       }}

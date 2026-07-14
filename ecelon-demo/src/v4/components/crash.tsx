@@ -164,31 +164,42 @@ export const NumberBoard: React.FC = () => {
   );
 };
 
-/** A field of foreclosure signs the camera pushes into — the human cost.
- * Signs keep appearing as the counter climbs; depth via scale + height. */
+/**
+ * A field of foreclosure signs the camera pushes into — the human cost.
+ * v5: laid out on non-overlapping depth LANES (not free-scattered), so
+ * cards never collide/garble into each other regardless of scale — a
+ * concrete bug in the earlier random-scatter version. Signs keep arriving
+ * as the counter climbs; farther lanes read smaller and dimmer for depth.
+ */
 export const ForeclosureSigns: React.FC = () => {
   const frame = useCurrentFrame();
   // slow dolly-in: the whole field grows toward the viewer for the full beat
   const push = 1 + interpolate(frame, [0, 120], [0, 0.16]);
   const drift = interpolate(frame, [0, 120], [0, -80]);
 
-  // deterministic field: 16 signs, near→far, staggered arrivals with the count
+  // 3 depth bands, each sign given its own lane so cards can never overlap
+  const BANDS = [
+    { count: 3, y: 200, s: 1.0, o: 1, atBase: 0, atStep: 5 },
+    { count: 4, y: 420, s: 0.68, o: 0.7, atBase: 12, atStep: 4 },
+    { count: 4, y: 600, s: 0.46, o: 0.42, atBase: 30, atStep: 4 },
+  ];
+
   const signs: { x: number; y: number; s: number; o: number; r: number; at: number }[] = [];
-  for (let i = 0; i < 16; i++) {
-    const h1 = Math.sin(i * 12.9898) * 43758.5453;
-    const h2 = Math.sin(i * 78.233) * 12543.123;
-    const rx = h1 - Math.floor(h1);
-    const ry = h2 - Math.floor(h2);
-    const depth = i / 15; // 0 = nearest, 1 = farthest
-    signs.push({
-      x: 40 + rx * 1760,
-      y: 210 + depth * 300 + ry * 60, // farther = higher on screen (fills the mid band)
-      s: 1.05 - depth * 0.62,
-      o: 1 - depth * 0.66,
-      r: (rx - 0.5) * 7,
-      at: i < 5 ? 0 : 6 + (i - 5) * 4, // first row is there; the rest keep coming
-    });
-  }
+  BANDS.forEach((band) => {
+    const laneW = 1920 / band.count;
+    for (let i = 0; i < band.count; i++) {
+      const h1 = Math.sin((i + band.count * 7) * 12.9898) * 43758.5453;
+      const rx = h1 - Math.floor(h1);
+      signs.push({
+        x: laneW * i + laneW * 0.5 + (rx - 0.5) * laneW * 0.3, // jitter bounded to 30% of the lane — never crosses into a neighbor
+        y: band.y,
+        s: band.s,
+        o: band.o,
+        r: (rx - 0.5) * 6,
+        at: band.atBase + i * band.atStep,
+      });
+    }
+  });
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#0B0A09", overflow: "hidden" }}>
@@ -196,24 +207,30 @@ export const ForeclosureSigns: React.FC = () => {
         {/* faint ground */}
         <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: "48%", background: "linear-gradient(180deg, transparent, rgba(20,17,14,0.9))" }} />
         {signs.map((sg, i) => {
-          const inO = interpolate(frame, [sg.at, sg.at + 5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+          const inO = interpolate(frame, [sg.at, sg.at + 6], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+          // fixed 210px-wide wrapper, all children pixel-positioned off its
+          // ground-contact origin — no auto-width/shrink-to-fit ambiguity,
+          // so the card can never drift off its post or into a neighbor.
           return (
             <div
               key={i}
               style={{
                 position: "absolute",
-                left: sg.x + drift * (1 - sg.s),
+                left: sg.x - 105 + drift * (1 - sg.s),
                 bottom: sg.y,
+                width: 210,
                 transform: `scale(${sg.s}) rotate(${sg.r}deg)`,
                 opacity: sg.o * inO,
-                transformOrigin: "bottom left",
+                transformOrigin: "bottom center",
                 zIndex: Math.round(sg.s * 100),
               }}
             >
-              <div style={{ width: 6, height: 150, backgroundColor: "#2A241C", marginLeft: 92 }} />
-              <div style={{ position: "absolute", top: 0, width: 210, padding: "16px 10px", backgroundColor: "#DED8CB", transform: "rotate(-2deg)", boxShadow: "0 10px 30px rgba(0,0,0,0.7)" }}>
-                <div style={{ fontFamily: V4.font, fontWeight: 800, fontSize: 26, color: "#161310", textAlign: "center", letterSpacing: 1 }}>FORECLOSED</div>
-                <div style={{ fontFamily: V4.mono, fontSize: 13, color: "#3A342A", textAlign: "center", marginTop: 4, letterSpacing: 2 }}>BANK OWNED</div>
+              {/* ground shadow — sells them as physical objects, not floating PNGs */}
+              <div style={{ position: "absolute", bottom: -6, left: "50%", transform: "translateX(-50%)", width: 140, height: 18, borderRadius: "50%", background: "rgba(0,0,0,0.5)", filter: "blur(6px)" }} />
+              <div style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", width: 6, height: 150, backgroundColor: "#2A241C" }} />
+              <div style={{ position: "absolute", bottom: 150, left: 0, width: 210, padding: "16px 10px", backgroundColor: "#DED8CB", transform: "rotate(-2deg)", boxShadow: "0 10px 30px rgba(0,0,0,0.7)" }}>
+                <div style={{ fontFamily: V4.font, fontWeight: 800, fontSize: 26, color: "#161310", textAlign: "center", letterSpacing: 1, whiteSpace: "nowrap" }}>FORECLOSED</div>
+                <div style={{ fontFamily: V4.mono, fontSize: 13, color: "#3A342A", textAlign: "center", marginTop: 4, letterSpacing: 2, whiteSpace: "nowrap" }}>BANK OWNED</div>
               </div>
             </div>
           );

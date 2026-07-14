@@ -4,6 +4,8 @@ import { V4 } from "../theme";
 import { T, DUR } from "../timeline";
 import { FacetMark, Wordmark } from "../components/FacetMark";
 import { GlowField } from "../components/ios";
+import { AGENTS, LIVE_FEED, COMMUNITY_POST, STRATEGY_PROMPT, WIN_RATE, agent } from "../config/agents";
+import { beatPulse } from "../config/beatmap";
 
 // THE PHONE — flies up from the bottom AS THE DRUMS ENTER, does a full 180°
 // flip (back → face), then scrolls the LIGHT-MODE beta app while the three
@@ -52,18 +54,8 @@ const Spark: React.FC = () => {
   );
 };
 
-const AGENT_ROWS = [
-  { ic: "AT", n: "Alpha Trader", r: "Momentum · autonomous" },
-  { ic: "MR", n: "Mean Reversion", r: "Buys fear, sells greed" },
-  { ic: "RK", n: "Risk Agent", r: "Watches every position" },
-  { ic: "MA", n: "Macro Research", r: "Reads the Fed for you" },
-];
-
-const FEED_ROWS = [
-  { a: "Alpha Trader", t: "opened NVDA @ $142.80", tag: "BUY" },
-  { a: "Mean Reversion", t: "closed SPY ▲ +1.2%", tag: "SELL" },
-  { a: "Risk Agent", t: "flagged beta at 1.34", tag: "FLAG" },
-];
+const AGENT_ROWS = AGENTS.slice(0, 4);
+const FEED_ROWS = LIVE_FEED.slice(0, 3);
 
 const LightApp: React.FC<{ scroll: number }> = ({ scroll }) => {
   const F = V4.font;
@@ -101,13 +93,13 @@ const LightApp: React.FC<{ scroll: number }> = ({ scroll }) => {
           <div style={label}>YOUR AGENTS</div>
           <LCard style={{ padding: "6px 0" }}>
             {AGENT_ROWS.map((a, i) => (
-              <div key={a.n} style={{ display: "flex", alignItems: "center", gap: 14, padding: "13px 20px", borderTop: i > 0 ? "1px solid #E5E5EA" : "none" }}>
+              <div key={a.key} style={{ display: "flex", alignItems: "center", gap: 14, padding: "13px 20px", borderTop: i > 0 ? "1px solid #E5E5EA" : "none" }}>
                 <div style={{ width: 44, height: 44, borderRadius: 13, backgroundColor: i === 0 ? V4.neon : "#F2F2F7", color: i === 0 ? "#fff" : "#0A0A0B", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: F, fontWeight: 800, fontSize: 15 }}>
-                  {a.ic}
+                  {a.initials}
                 </div>
                 <div>
-                  <div style={{ fontFamily: F, fontWeight: 700, fontSize: 17, color: "#0A0A0B" }}>{a.n}</div>
-                  <div style={{ fontFamily: F, fontSize: 13.5, color: "#8E8E93", marginTop: 1 }}>{a.r}</div>
+                  <div style={{ fontFamily: F, fontWeight: 700, fontSize: 17, color: "#0A0A0B" }}>{a.name}</div>
+                  <div style={{ fontFamily: F, fontSize: 14.5, color: "#6E6E73", marginTop: 1 }}>{a.oneLiner}</div>
                 </div>
                 <span style={{ marginLeft: "auto", width: 9, height: 9, borderRadius: 999, backgroundColor: V4.neon }} />
               </div>
@@ -118,7 +110,7 @@ const LightApp: React.FC<{ scroll: number }> = ({ scroll }) => {
           <div style={label}>NEW STRATEGY</div>
           <LCard>
             <div style={{ fontFamily: F, fontSize: 16.5, color: "#0A0A0B", lineHeight: 1.5, border: "1.5px solid #E5E5EA", borderRadius: 14, padding: "14px 16px" }}>
-              Trade momentum on large-caps. Cap my risk at 2% a day.
+              {STRATEGY_PROMPT}
             </div>
             <div style={{ marginTop: 14, fontFamily: F, fontWeight: 800, fontSize: 17, textAlign: "center", color: "#FFFFFF", backgroundColor: V4.neon, borderRadius: 999, padding: "13px 0" }}>
               Backtest
@@ -131,7 +123,7 @@ const LightApp: React.FC<{ scroll: number }> = ({ scroll }) => {
             <Spark />
             <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
               {[
-                ["Win rate", "68%"],
+                ["Win rate", `${WIN_RATE}%`],
                 ["Drawdown", "−4.2%"],
                 ["Risk cap", "2%/day"],
               ].map(([k, v]) => (
@@ -147,10 +139,10 @@ const LightApp: React.FC<{ scroll: number }> = ({ scroll }) => {
           <div style={label}>LIVE — PAPER TRADING</div>
           <LCard style={{ padding: "6px 0" }}>
             {FEED_ROWS.map((r, i) => (
-              <div key={r.a} style={{ display: "flex", alignItems: "center", gap: 10, padding: "13px 20px", borderTop: i > 0 ? "1px solid #E5E5EA" : "none" }}>
+              <div key={r.key} style={{ display: "flex", alignItems: "center", gap: 10, padding: "13px 20px", borderTop: i > 0 ? "1px solid #E5E5EA" : "none" }}>
                 <div>
-                  <div style={{ fontFamily: F, fontWeight: 700, fontSize: 15.5, color: "#0A0A0B" }}>{r.a}</div>
-                  <div style={{ fontFamily: F, fontSize: 13.5, color: "#8E8E93", marginTop: 1 }}>{r.t}</div>
+                  <div style={{ fontFamily: F, fontWeight: 700, fontSize: 15.5, color: "#0A0A0B" }}>{agent(r.key).name}</div>
+                  <div style={{ fontFamily: F, fontSize: 14.5, color: "#6E6E73", marginTop: 1 }}>{r.txt}</div>
                 </div>
                 <span style={{ marginLeft: "auto", fontFamily: F, fontWeight: 800, fontSize: 12, letterSpacing: "0.08em", color: V4.neon, border: `1.5px solid ${V4.neon}`, borderRadius: 999, padding: "3px 10px" }}>
                   {r.tag}
@@ -167,13 +159,13 @@ const LightApp: React.FC<{ scroll: number }> = ({ scroll }) => {
                 JD
               </div>
               <div>
-                <div style={{ fontFamily: F, fontWeight: 700, fontSize: 16, color: "#0A0A0B" }}>jade.d</div>
-                <div style={{ fontFamily: F, fontSize: 13, color: "#8E8E93" }}>shared a strategy · 2h</div>
+                <div style={{ fontFamily: F, fontWeight: 700, fontSize: 16, color: "#0A0A0B" }}>{COMMUNITY_POST.user}</div>
+                <div style={{ fontFamily: F, fontSize: 14, color: "#6E6E73" }}>shared a strategy · 2h</div>
               </div>
-              <span style={{ marginLeft: "auto", fontFamily: F, fontWeight: 800, fontSize: 15, color: "#0A0A0B" }}>+12.4%</span>
+              <span style={{ marginLeft: "auto", fontFamily: F, fontWeight: 800, fontSize: 15, color: "#0A0A0B" }}>{COMMUNITY_POST.pct}</span>
             </div>
             <div style={{ marginTop: 12, fontFamily: F, fontSize: 15.5, color: "#0A0A0B", lineHeight: 1.45 }}>
-              “Large-cap momentum with a 2% daily cap — 68% win rate over 6 years backtested.”
+              “{COMMUNITY_POST.quote}”
             </div>
             <div style={{ marginTop: 14, fontFamily: F, fontWeight: 800, fontSize: 15.5, textAlign: "center", color: V4.neon, border: `1.5px solid ${V4.neon}`, borderRadius: 999, padding: "11px 0" }}>
               Copy strategy
@@ -185,7 +177,7 @@ const LightApp: React.FC<{ scroll: number }> = ({ scroll }) => {
           <LCard>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
               {["Stocks", "ETFs", "Crypto", "Memecoins", "Predictions", "Metals", "Futures"].map((m, i) => (
-                <span key={m} style={{ fontFamily: F, fontWeight: 700, fontSize: 13.5, color: i % 3 === 1 ? "#fff" : "#0A0A0B", backgroundColor: i % 3 === 1 ? V4.neon : "#F2F2F7", borderRadius: 999, padding: "8px 14px" }}>
+                <span key={m} style={{ fontFamily: F, fontWeight: 700, fontSize: 14.5, color: i % 3 === 1 ? "#fff" : "#0A0A0B", backgroundColor: i % 3 === 1 ? V4.neon : "#F2F2F7", borderRadius: 999, padding: "8px 14px" }}>
                   {m}
                 </span>
               ))}
@@ -196,7 +188,7 @@ const LightApp: React.FC<{ scroll: number }> = ({ scroll }) => {
           <div style={{ marginTop: 28, fontFamily: F, fontWeight: 800, fontSize: 19, textAlign: "center", color: "#FFFFFF", backgroundColor: "#0A0A0B", borderRadius: 999, padding: "16px 0" }}>
             Get started
           </div>
-          <div style={{ marginTop: 12, textAlign: "center", fontFamily: F, fontSize: 12.5, color: "#8E8E93" }}>
+          <div style={{ marginTop: 12, textAlign: "center", fontFamily: F, fontSize: 13.5, color: "#6E6E73" }}>
             Ecelon Beta · Paper trading · Live markets, no real funds
           </div>
         </div>
@@ -288,22 +280,41 @@ const PhoneBody: React.FC<{ rel: number }> = ({ rel }) => {
 
 const PhoneScene: React.FC = () => {
   const rel = useCurrentFrame();
+  // slow push-in for the whole scene (a "camera move") + a beat-synced
+  // scale-breath on the pedestal glow so the frame never sits dead still
+  const push = interpolate(rel, [0, DUR.phone], [1, 1.045], { extrapolateRight: "clamp" });
+  const pulse = beatPulse(T.phone + rel);
   return (
-    <AbsoluteFill style={{ backgroundColor: V4.bg, justifyContent: "center", alignItems: "center" }}>
-      <GlowField intensity={1.2} />
-      {/* neon pedestal glow under the phone */}
-      <div style={{ position: "absolute", bottom: -180, left: "50%", transform: "translateX(-50%)", width: 1100, height: 380, borderRadius: "50%", background: "radial-gradient(ellipse, rgba(255,75,0,0.28), transparent 65%)" }} />
+    <AbsoluteFill style={{ backgroundColor: V4.bg, justifyContent: "center", alignItems: "center", overflow: "hidden" }}>
+      <AbsoluteFill style={{ transform: `scale(${push})` }}>
+        <GlowField intensity={1.2} />
+        {/* neon pedestal glow under the phone — breathes on the beat.
+            Blurred solid ellipse, not a radial-gradient — the brief's #1
+            banding complaint was specifically this glow. */}
+        <div style={{ position: "absolute", bottom: -420, left: "50%", width: 1400, height: 800, transform: "translateX(-50%)", filter: "blur(110px)", pointerEvents: "none" }}>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              borderRadius: "50%",
+              backgroundColor: V4.neon,
+              opacity: 0.3 + pulse * 0.12,
+              transform: `scale(${1 + pulse * 0.05})`,
+            }}
+          />
+        </div>
 
-      <div style={{ position: "absolute", left: 330, top: 104 }}>
-        <PhoneBody rel={rel} />
-      </div>
+        <div style={{ position: "absolute", left: 330, top: 104 }}>
+          <PhoneBody rel={rel} />
+        </div>
 
-      {/* the three how-captions, each landing ON a riff onset */}
-      <div style={{ position: "absolute", left: 950, top: 320, display: "flex", flexDirection: "column", gap: 74 }}>
-        {CAPTIONS.map((c) => (
-          <Caption key={c.n} n={c.n} line={c.line} at={c.at} />
-        ))}
-      </div>
+        {/* the three how-captions, each landing ON a riff onset */}
+        <div style={{ position: "absolute", left: 950, top: 320, display: "flex", flexDirection: "column", gap: 74 }}>
+          {CAPTIONS.map((c) => (
+            <Caption key={c.n} n={c.n} line={c.line} at={c.at} />
+          ))}
+        </div>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };
@@ -311,27 +322,43 @@ const PhoneScene: React.FC = () => {
 const Caption: React.FC<{ n: string; line: string; at: number }> = ({ n, line, at }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const s = spring({ frame: frame - at, fps, config: { damping: 13, stiffness: 300, mass: 0.7 } });
+  const s = spring({ frame: frame - at, fps, config: { damping: 11, stiffness: 340, mass: 0.65 } }); // v5: snappier, more overshoot
   const active = frame >= at;
+  const ringDraw = interpolate(frame - at, [0, 16], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const C = 2 * Math.PI * 32;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 26, opacity: active ? Math.min(1, s * 1.8) : 0, transform: `translateX(${(1 - s) * 70}px)` }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 26, opacity: active ? Math.min(1, s * 1.8) : 0, transform: `translateX(${(1 - s) * 70}px) scale(${0.85 + s * 0.15})` }}>
       <span
         style={{
+          position: "relative",
           fontFamily: V4.mono,
           fontSize: 28,
           fontWeight: 700,
           color: V4.neon,
-          border: `2px solid ${V4.neon}`,
-          borderRadius: 999,
           width: 68,
           height: 68,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          boxShadow: "0 0 30px rgba(255,75,0,0.35)",
           flexShrink: 0,
         }}
       >
+        <svg width={68} height={68} style={{ position: "absolute", inset: 0 }}>
+          <circle cx={34} cy={34} r={32} fill="none" stroke="rgba(255,75,0,0.18)" strokeWidth={2} />
+          <circle
+            cx={34}
+            cy={34}
+            r={32}
+            fill="none"
+            stroke={V4.neon}
+            strokeWidth={2.5}
+            strokeLinecap="round"
+            strokeDasharray={C}
+            strokeDashoffset={C * (1 - ringDraw)}
+            transform="rotate(-90 34 34)"
+            style={{ filter: "drop-shadow(0 0 10px rgba(255,75,0,0.6))" }}
+          />
+        </svg>
         {n}
       </span>
       <span style={{ fontFamily: V4.font, fontWeight: 800, fontSize: 62, letterSpacing: "-0.025em", color: V4.white, whiteSpace: "nowrap" }}>{line}</span>

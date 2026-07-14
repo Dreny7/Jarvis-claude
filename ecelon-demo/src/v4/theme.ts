@@ -13,8 +13,8 @@ export const V4 = {
   neon: "#FF4B00", // FLAT brand field — never a gradient
 
   white: "#F5F5F7",
-  dim: "rgba(245,245,247,0.55)",
-  faint: "rgba(245,245,247,0.30)",
+  dim: "rgba(245,245,247,0.68)", // bumped +13pt — v5 contrast pass, sublabels were near-invisible
+  faint: "rgba(245,245,247,0.44)", // bumped +14pt — footer/disclosure legibility
 
   font: "'Plus Jakarta Sans', -apple-system, 'Segoe UI', sans-serif",
   mono: "'Courier New', ui-monospace, monospace",

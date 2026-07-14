@@ -1,11 +1,12 @@
-// Single source of truth. 30fps · 2330f = 77.7s.
-// LONG CRASH (31s, heart-first) → CRT power-off + SLAM (music flip) →
-// BEAT-SYNCED PRODUCT (every boundary sits on a Highway-to-Hell onset,
-// measured from the file: chords at slam+66/+131/+164..., drums at +259).
+// Single source of truth. 30fps · 2390f = 79.7s.
+// LONG CRASH (33s, heart-first — v5 gives the emotional core more air) →
+// CRT power-off + SLAM (music flip) → BEAT-SYNCED PRODUCT (every boundary
+// sits on a Highway-to-Hell onset, measured from the file: chords at
+// slam+66/+131/+164..., drums at +259).
 
 export const FPS = 30;
 
-const SLAM = 930;
+const SLAM = 990; // +60f vs v4 — the extra air goes into c7/c8/c9 below
 
 export const T = {
   // THE ARCHIVE — recreated 2008, escalating
@@ -15,11 +16,11 @@ export const T = {
   c4: 290, //  real-ticker collapse board
   c5: 400, //  wire headlines (Lehman / AIG / $700B bailout)
   c6: 510, //  the funds made billions (diverge)
-  c7: 610, //  foreclosures + 10M homes
-  c8: 730, //  $19.2T wealth erased · 8.8M jobs lost
-  c9: 850, //  "For decades, the edge belonged to them."
+  c7: 610, //  foreclosures + 10M homes — v5: held 30f longer (the ache)
+  c8: 760, //  $19.2T wealth erased · 8.8M jobs lost — v5: held 20f longer
+  c9: 900, //  "For decades, the edge belonged to them." — v5: held 10f longer
 
-  // FLIP — CRT power-off runs slam-14 → slam, chord 1 hits ON the slam
+  // FLIP — CRT power-off runs slam-20 → slam, chord 1 hits ON the slam
   slam: SLAM, //        neon shockwave + NOT ANYMORE.   (chord 1)
   reveal: SLAM + 66, // lockup on flat neon             (chord 2)
   built: SLAM + 131, // "We built the algorithm…"       (chord 3)
@@ -35,7 +36,7 @@ export const T = {
 
   // OUTRO
   a5: SLAM + 1098,
-  end: 2330,
+  end: SLAM + 1400,
 } as const;
 
 export const DUR = {

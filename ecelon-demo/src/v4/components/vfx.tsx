@@ -2,10 +2,17 @@ import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
 import { noise2D } from "@remotion/noise";
 
-/** Deterministic per-frame film grain (feTurbulence, overlay blend). */
-export const Grain: React.FC<{ intensity: number }> = ({ intensity }) => {
+/**
+ * Deterministic per-frame film grain (feTurbulence, screen blend).
+ * Doubles as the fix for gradient/glow banding at low bitrate — dithering
+ * a smooth dark ramp with noise is what stops the eye seeing rings.
+ * `animate`: true = fast-reseeding film grain (Act I), false = slow-reseeding
+ * fine digital grain (Act II) — a texture, not visible noise.
+ */
+export const Grain: React.FC<{ intensity: number; animate?: boolean }> = ({ intensity, animate = true }) => {
   const frame = useCurrentFrame();
   if (intensity <= 0.001) return null;
+  const seed = animate ? frame % 8 : Math.floor(frame / 6) % 8;
   return (
     <svg
       style={{
@@ -25,7 +32,7 @@ export const Grain: React.FC<{ intensity: number }> = ({ intensity }) => {
           type="fractalNoise"
           baseFrequency={0.9}
           numOctaves={2}
-          seed={frame % 8}
+          seed={seed}
           stitchTiles="stitch"
         />
         <feColorMatrix

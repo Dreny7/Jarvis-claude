@@ -1,34 +1,61 @@
 import React from "react";
-import { AbsoluteFill, Sequence, interpolate, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Sequence, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { V4 } from "../theme";
 import { T, DUR } from "../timeline";
 import { TypeOn, KineticLine, CountUp } from "../components/text";
 import { PlusGrid } from "../components/vfx";
 import { FacetMark } from "../components/FacetMark";
 import { Glass, GlowField, Segmented, Rise, Pill, ORANGE_GRAD } from "../components/ios";
+import { AGENTS, HERO_AGENT, LIVE_FEED, STRATEGY_PROMPT, WIN_RATE, agent } from "../config/agents";
+import { beatPulse } from "../config/beatmap";
 
 // PRODUCT MONTAGE — iOS-sleek: frosted glass, hairline strokes, pill controls,
 // a living glow field behind everything, and something moving on every frame.
+// v5: every stage gets a slow camera push and a beat-synced pulse so nothing
+// ever sits dead still, and a fast orange wipe hands off between scenes
+// instead of a flat cut.
 
-const Stage: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <AbsoluteFill style={{ backgroundColor: V4.bg, justifyContent: "center", alignItems: "center" }}>
-    <GlowField />
-    {children}
-  </AbsoluteFill>
-);
+const Stage: React.FC<{ children: React.ReactNode; pushTo?: number }> = ({ children, pushTo = 1.05 }) => {
+  const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
+  const push = interpolate(frame, [0, durationInFrames], [1, pushTo], { extrapolateRight: "clamp" });
+  return (
+    <AbsoluteFill style={{ backgroundColor: V4.bg, justifyContent: "center", alignItems: "center", overflow: "hidden" }}>
+      <AbsoluteFill style={{ transform: `scale(${push})` }}>
+        <GlowField />
+        {children}
+      </AbsoluteFill>
+      <Wipe />
+    </AbsoluteFill>
+  );
+};
+
+/** Fast orange wipe on entrance/exit — a whip transition instead of a flat cut. */
+const Wipe: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
+  const inW = interpolate(frame, [0, 9], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const outW = interpolate(frame, [durationInFrames - 9, durationInFrames], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const w = Math.max(inW, outW);
+  if (w <= 0.001) return null;
+  return (
+    <AbsoluteFill
+      style={{
+        pointerEvents: "none",
+        background: V4.neon,
+        clipPath: `polygon(0 0, ${w * 100 + 12}% 0, ${w * 100 - 12}% 100%, 0 100%)`,
+      }}
+    />
+  );
+};
 
 /* ---------------- p1 — the money shot ---------------- */
 
-const PROMPT = "Trade momentum on large-caps. Cap my risk at 2% a day.";
+const PROMPT = STRATEGY_PROMPT;
 const TYPE_END = 26;
 const BT_START = 30;
 const DEPLOY = 82;
-const FEED = [
-  { agent: "Alpha Trader", txt: "opened NVDA @ $142.80", tag: "BUY", when: "2m" },
-  { agent: "Mean Reversion", txt: "closed SPY ▲ +1.2%", tag: "SELL", when: "14m" },
-  { agent: "Risk Agent", txt: "flagged beta at 1.34", tag: "FLAG", when: "22m" },
-  { agent: "Macro Research", txt: "published a dovish Fed brief", tag: "BRIEF", when: "31m" },
-];
+const FEED = LIVE_FEED;
 
 const Composer: React.FC = () => {
   const frame = useCurrentFrame();
@@ -109,7 +136,7 @@ const Composer: React.FC = () => {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 18, justifyContent: "center" }}>
               {[
-                { k: "Win rate", v: "68%", d: BT_START + 34 },
+                { k: "Win rate", v: `${WIN_RATE}%`, d: BT_START + 34 },
                 { k: "Max drawdown", v: "−4.2%", d: BT_START + 39 },
                 { k: "Risk cap honored", v: "2% / day", d: BT_START + 44 },
               ].map((m) => (
@@ -125,7 +152,7 @@ const Composer: React.FC = () => {
 
           <div style={{ marginTop: 26 }}>
             {FEED.map((f, i) => (
-              <Rise key={f.agent} delay={DEPLOY + 6 + i * 7} from={18}>
+              <Rise key={f.key} delay={DEPLOY + 6 + i * 7} from={18}>
                 <div
                   style={{
                     display: "flex",
@@ -138,7 +165,7 @@ const Composer: React.FC = () => {
                     border: `1px solid ${i === 0 ? "rgba(255,75,0,0.35)" : "rgba(255,255,255,0.07)"}`,
                   }}
                 >
-                  <span style={{ fontFamily: V4.font, fontWeight: 700, fontSize: 23, color: V4.white }}>{f.agent}</span>
+                  <span style={{ fontFamily: V4.font, fontWeight: 700, fontSize: 23, color: V4.white }}>{agent(f.key).name}</span>
                   <span style={{ fontFamily: V4.font, fontSize: 23, color: V4.dim }}>{f.txt}</span>
                   <span
                     style={{
@@ -168,17 +195,11 @@ const Composer: React.FC = () => {
 
 /* ---------------- agents — your desk of specialists ---------------- */
 
-const DESK = [
-  { n: "Alpha Trader", r: "Momentum execution", ic: "AT" },
-  { n: "Mean Reversion", r: "Buys fear, sells greed", ic: "MR" },
-  { n: "Macro Research", r: "Reads the Fed for you", ic: "MA" },
-  { n: "Risk Agent", r: "Watches every position", ic: "RK" },
-  { n: "Sentiment Scout", r: "Scans news & socials", ic: "SS" },
-  { n: "Yield Farmer", r: "Puts idle cash to work", ic: "YF" },
-];
+const DESK = AGENTS;
 
 const AgentDesk: React.FC = () => {
   const frame = useCurrentFrame();
+  const pulse = beatPulse(T.agents + frame);
   return (
     <Stage>
       <div style={{ position: "absolute", top: 92, width: "100%", textAlign: "center" }}>
@@ -190,8 +211,17 @@ const AgentDesk: React.FC = () => {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 440px)", gap: 22, marginTop: 100 }}>
         {DESK.map((a, i) => (
-          <Rise key={a.n} delay={20 + i * 5}>
-            <Glass radius={24} style={{ padding: "24px 26px", display: "flex", alignItems: "center", gap: 20 }}>
+          <Rise key={a.key} delay={20 + i * 5}>
+            <Glass
+              radius={24}
+              style={{
+                padding: "24px 26px",
+                display: "flex",
+                alignItems: "center",
+                gap: 20,
+                boxShadow: i === 0 ? `0 40px 110px rgba(0,0,0,0.55), 0 0 ${30 + pulse * 26}px rgba(255,75,0,${0.25 + pulse * 0.25})` : undefined,
+              }}
+            >
               <div
                 style={{
                   width: 62,
@@ -209,11 +239,11 @@ const AgentDesk: React.FC = () => {
                   flexShrink: 0,
                 }}
               >
-                {a.ic}
+                {a.initials}
               </div>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontFamily: V4.font, fontWeight: 700, fontSize: 27, color: V4.white, whiteSpace: "nowrap" }}>{a.n}</div>
-                <div style={{ fontFamily: V4.font, fontSize: 20, color: V4.dim, marginTop: 3, whiteSpace: "nowrap" }}>{a.r}</div>
+                <div style={{ fontFamily: V4.font, fontWeight: 700, fontSize: 27, color: V4.white, whiteSpace: "nowrap" }}>{a.name}</div>
+                <div style={{ fontFamily: V4.font, fontSize: 20, color: V4.dim, marginTop: 3, whiteSpace: "nowrap" }}>{a.oneLiner}</div>
               </div>
               <span
                 style={{
@@ -252,7 +282,10 @@ const LIMITS = [
 ];
 const TRUST = ["Approvals stay with you", "Hard limits, enforced", "Every action logged"];
 
-const Trust: React.FC = () => (
+const Trust: React.FC = () => {
+  const frame = useCurrentFrame();
+  const pulse = beatPulse(T.p2 + frame);
+  return (
   <Stage>
     <div style={{ position: "absolute", top: 84, width: "100%", textAlign: "center" }}>
       <KineticLine text="Their algorithms answer to no one." delay={2} stagger={2} fontSize={50} fontWeight={600} color={V4.dim} />
@@ -260,8 +293,8 @@ const Trust: React.FC = () => (
       <KineticLine text="{orange:Yours} answer to you." delay={12} stagger={2} fontSize={70} fontWeight={800} punchy />
     </div>
 
-    <Rise delay={18}>
-      <Glass style={{ width: 900, padding: 40, marginTop: 120 }}>
+    <Rise delay={24}>
+      <Glass style={{ width: 900, padding: 40, marginTop: 120, boxShadow: `0 40px 110px rgba(0,0,0,0.55), 0 0 ${24 + pulse * 20}px rgba(255,75,0,${0.12 + pulse * 0.18})` }}>
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           <div
             style={{
@@ -278,11 +311,11 @@ const Trust: React.FC = () => (
               color: "#fff",
             }}
           >
-            AT
+            {HERO_AGENT.initials}
           </div>
           <div>
-            <div style={{ fontFamily: V4.font, fontWeight: 700, fontSize: 34, color: V4.white }}>Alpha Trader</div>
-            <div style={{ fontFamily: V4.font, fontSize: 22, color: V4.dim, marginTop: 2 }}>Autonomous · Momentum</div>
+            <div style={{ fontFamily: V4.font, fontWeight: 700, fontSize: 34, color: V4.white }}>{HERO_AGENT.name}</div>
+            <div style={{ fontFamily: V4.font, fontSize: 22, color: V4.dim, marginTop: 2 }}>Autonomous · Tape reading</div>
           </div>
           <div style={{ marginLeft: "auto" }}>
             <Pill text="LIVE — PAPER" size={18} />
@@ -343,14 +376,16 @@ const Trust: React.FC = () => (
       ))}
     </div>
   </Stage>
-);
+  );
+};
 
 /* ---------------- p3 — 71% proof ---------------- */
 
 const Proof: React.FC = () => {
   const frame = useCurrentFrame();
-  const ringDraw = interpolate(frame, [4, 40], [0, 0.71], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const ringDraw = interpolate(frame, [4, 40], [0, WIN_RATE / 100], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const C = 2 * Math.PI * 300;
+  const pulse = frame > 40 ? beatPulse(T.p3 + frame) : 0;
   return (
     <Stage>
       <svg width={720} height={720} viewBox="0 0 720 720" style={{ position: "absolute" }}>
@@ -366,7 +401,7 @@ const Proof: React.FC = () => {
           strokeDasharray={C}
           strokeDashoffset={C * (1 - ringDraw)}
           transform="rotate(-90 360 360)"
-          style={{ filter: "drop-shadow(0 0 16px rgba(255,75,0,0.5))" }}
+          style={{ filter: `drop-shadow(0 0 ${16 + pulse * 14}px rgba(255,75,0,${0.5 + pulse * 0.3}))` }}
         />
       </svg>
       <div style={{ textAlign: "center" }}>
@@ -382,7 +417,7 @@ const Proof: React.FC = () => {
             textShadow: "0 0 80px rgba(255,75,0,0.35)",
           }}
         >
-          <CountUp to={71} startFrame={4} durationFrames={30} overshoot format={(v) => `${Math.round(v)}%`} />
+          <CountUp to={WIN_RATE} startFrame={4} durationFrames={30} overshoot format={(v) => `${Math.round(v)}%`} />
         </div>
       </div>
       <Rise delay={44} style={{ position: "absolute", bottom: 110 }}>
@@ -415,7 +450,10 @@ const Proof: React.FC = () => {
 const MARKETS = ["Stocks", "ETFs", "Crypto", "Memecoins", "Prediction markets", "Metals", "Futures"];
 const BROKERS = ["Alpaca", "Binance", "Coinbase", "Robinhood", "Kraken", "eToro"];
 
-const Markets: React.FC = () => (
+const Markets: React.FC = () => {
+  const frame = useCurrentFrame();
+  const pulse = beatPulse(T.p4 + frame);
+  return (
   <Stage>
     <div style={{ position: "absolute", top: 110, width: "100%", textAlign: "center" }}>
       <KineticLine text="Every market. {orange:One} direct link." delay={2} stagger={2.5} fontSize={78} fontWeight={800} punchy />
@@ -435,6 +473,7 @@ const Markets: React.FC = () => (
               border: `1.5px solid ${i % 3 === 1 ? "rgba(255,107,44,0.55)" : "rgba(255,255,255,0.14)"}`,
               backgroundColor: i % 3 === 1 ? "rgba(255,75,0,0.10)" : "rgba(255,255,255,0.05)",
               backdropFilter: "blur(20px)",
+              boxShadow: i % 3 === 1 ? `0 0 ${18 + pulse * 16}px rgba(255,75,0,${0.25 + pulse * 0.3})` : undefined,
             }}
           >
             {m}
@@ -458,7 +497,8 @@ const Markets: React.FC = () => (
       </div>
     </Rise>
   </Stage>
-);
+  );
+};
 
 export const Act4: React.FC = () => (
   <>

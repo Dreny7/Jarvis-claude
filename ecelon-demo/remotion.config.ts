@@ -11,3 +11,12 @@ Config.setChromiumOpenGlRenderer("angle-egl");
 // delayRender calls plenty of headroom and don't oversubscribe tabs.
 Config.setTimeoutInMilliseconds(180000);
 Config.setConcurrency(4);
+
+// v5 §2E — the ~1.9 Mbps default is exactly what smooth dark gradients band
+// at; CRF 16 (near-visually-lossless) + explicit high-bitrate audio fixes
+// half the "banding" complaint on its own (the Grain overlay dither is the
+// other half — see components/vfx.tsx).
+Config.setCrf(16);
+Config.setPixelFormat("yuv420p");
+Config.setAudioCodec("aac");
+Config.setAudioBitrate("320k");

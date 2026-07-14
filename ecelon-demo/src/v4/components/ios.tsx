@@ -28,7 +28,13 @@ export const Glass: React.FC<{ children: React.ReactNode; style?: React.CSSPrope
   </div>
 );
 
-/** Two drifting orange glows + slow parallax — the "alive" backdrop for part 2. */
+/**
+ * Two drifting orange glows + slow parallax — the "alive" backdrop for part 2.
+ * v5: rebuilt as blurred solid ellipses (filter:blur, not radial-gradient) —
+ * a raw radial-gradient on near-black is exactly what 8-bit/low-bitrate H.264
+ * bands into visible rings; a rasterized blur composites far cleaner and
+ * survives compression. Paired with the Grain overlay's dithering upstream.
+ */
 export const GlowField: React.FC<{ intensity?: number }> = ({ intensity = 1 }) => {
   const frame = useCurrentFrame();
   const x1 = 26 + Math.sin(frame / 46) * 9;
@@ -36,17 +42,35 @@ export const GlowField: React.FC<{ intensity?: number }> = ({ intensity = 1 }) =
   const x2 = 76 - Math.sin(frame / 52) * 10;
   const y2 = 72 + Math.sin(frame / 40) * 7;
   return (
-    <AbsoluteFill style={{ pointerEvents: "none" }}>
-      <AbsoluteFill
-        style={{
-          background: `radial-gradient(ellipse 34% 30% at ${x1}% ${y1}%, rgba(255,75,0,${0.13 * intensity}), transparent 70%)`,
-        }}
-      />
-      <AbsoluteFill
-        style={{
-          background: `radial-gradient(ellipse 30% 34% at ${x2}% ${y2}%, rgba(255,122,61,${0.09 * intensity}), transparent 70%)`,
-        }}
-      />
+    <AbsoluteFill style={{ pointerEvents: "none", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: -200, filter: "blur(120px)" }}>
+        <div
+          style={{
+            position: "absolute",
+            left: `${x1}%`,
+            top: `${y1}%`,
+            width: 900,
+            height: 700,
+            borderRadius: "50%",
+            backgroundColor: V4.orangeDeep,
+            opacity: 0.16 * intensity,
+            transform: "translate(-50%, -50%)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            left: `${x2}%`,
+            top: `${y2}%`,
+            width: 780,
+            height: 620,
+            borderRadius: "50%",
+            backgroundColor: V4.orangeHi,
+            opacity: 0.11 * intensity,
+            transform: "translate(-50%, -50%)",
+          }}
+        />
+      </div>
     </AbsoluteFill>
   );
 };
@@ -121,12 +145,14 @@ export const Rise: React.FC<{ delay: number; children: React.ReactNode; from?: n
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const s = spring({ frame: frame - delay, fps, config: { damping: 15, stiffness: 270, mass: 0.6 } });
+  // v5: snappier + more overshoot — the brief's "high dopamine" pass
+  const s = spring({ frame: frame - delay, fps, config: { damping: 12, stiffness: 320, mass: 0.55 } });
   return (
     <div
       style={{
-        opacity: Math.min(1, s * 1.4),
-        transform: `translateY(${(1 - s) * from}px) scale(${0.97 + s * 0.03})`,
+        opacity: Math.min(1, s * 1.5),
+        transform: `translateY(${(1 - s) * from}px) scale(${0.92 + s * 0.08})`,
+        filter: s < 1 ? `blur(${(1 - Math.min(1, s * 1.6)) * 3}px)` : undefined,
         ...style,
       }}
     >
