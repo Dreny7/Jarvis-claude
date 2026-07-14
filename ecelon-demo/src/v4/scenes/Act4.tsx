@@ -19,12 +19,15 @@ const Stage: React.FC<{ children: React.ReactNode; pushTo?: number }> = ({ child
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
   const push = interpolate(frame, [0, durationInFrames], [1, pushTo], { extrapolateRight: "clamp" });
+  // NOTE: the camera push lives on THIS SAME flex container, not a nested
+  // AbsoluteFill — an inner wrapper here previously ate the flex centering
+  // every scene's main panel relies on (marginTop offsets assumed a
+  // flex-centered baseline), which silently threw Trust's card and headline
+  // on top of each other. transform doesn't break flex layout of children.
   return (
-    <AbsoluteFill style={{ backgroundColor: V4.bg, justifyContent: "center", alignItems: "center", overflow: "hidden" }}>
-      <AbsoluteFill style={{ transform: `scale(${push})` }}>
-        <GlowField />
-        {children}
-      </AbsoluteFill>
+    <AbsoluteFill style={{ backgroundColor: V4.bg, justifyContent: "center", alignItems: "center", overflow: "hidden", transform: `scale(${push})` }}>
+      <GlowField />
+      {children}
       <Wipe />
     </AbsoluteFill>
   );
