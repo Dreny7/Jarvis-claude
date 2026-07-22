@@ -327,3 +327,214 @@ narrative spine; existing logo + font assets.
 6. Aspect/length/target platform for the video — not yet specified.
 
 **Verdict placeholder** (finalized after the completeness audit in §9).
+
+---
+
+# PART II — AUDIT HARDENING (resolves the completeness pass)
+
+A 6-reviewer adversarial audit ran against Part I. The reviewers could not
+see the source images (only this doc), so their "no visual source" blocker
+applies to a *downstream* builder, not to the analysis itself — but their
+structural findings are valid and resolved below. Values here supersede the
+looser estimates in Part I.
+
+## 9. CANONICAL DEMO DATA (the most important fix)
+
+The screenshots capture the user's **live test session**, not clean demo
+content, and the data is self-contradictory — a launch video must NOT
+reproduce it verbatim:
+
+- Agent is named **"Spongebob Agent"** in the wizard but the detail
+  screens (Agent Logic / Graph / Activity) show a different agent, **"Nova."**
+- Strategy copy conflicts across screens: "Buy btc when RSI is below 20 and
+  sell when RSI goes to 0" (nonsensical exit) vs "RSI below 30, take profit
+  4%" vs "RSI(14) below 20, close above 50."
+- Numbers disagree: capital **100,000 vs 10,000 USDT**; RSI threshold
+  **30 vs 20**; candle timeframe **1m vs 4H vs 5m**.
+- The one **approved** demo the client supplied (MNQ futures, human approval
+  card, audit-log line) does not appear at all.
+
+**Resolution — pick ONE canonical agent and use it on every screen:**
+
+**Option A — clean crypto agent "Nova" (matches the captured BTCUSDT chart):**
+- Name: Nova · Ticker: BTCUSDT · Type: Autonomous · Venue: Binance (Crypto)
+- Strategy (one wording everywhere): *"Go long when RSI(14) drops below 30
+  on 5m candles. Close when RSI(14) crosses above 50."*
+- Risk: Balanced · Capital: 10,000 USDT · Approvals: Manual
+- Chart: the existing BTCUSDT 4H series (label the timeframe pill 4H and the
+  footnote "5m candles" consistently, or switch footnote to match).
+
+**Option B — the approved MNQ futures demo (most product-accurate, best
+trust story — adds the approval card + audit log):**
+- Name: e.g. "Opening Range" · Instrument: Micro E-mini Nasdaq-100 (**MNQ**,
+  CME) · Type: Autonomous · Session: New York
+- Strategy: *"Mark the first-15-min opening range. Go long only when price
+  closes above the range high, retests without closing back below, holds
+  above VWAP, and volume beats its 20-bar average."*
+- Risk per trade 0.25% · Max daily loss 0.50% · Target 2R · Approvals: **Manual**
+- Approval card (verbatim, real): "MNQ Long · 4 contracts / Entry 21,847.00 /
+  Stop 21,832.00 / Target 21,877.00 / Max loss $120 — 0.24% / Potential
+  profit $240 — 2.0R" + checklist "Opening-range retest ✓ · Above VWAP ✓ ·
+  Volume confirmed ✓ · News window clear ✓ · Risk limits passed ✓" +
+  "[Approve once] [Edit limits] [Reject]"
+- Audit log: "10:02:21 ET — Paper trade approved"
+
+**Recommendation:** Option B for the deploy→approval→audit beat (it's the
+approved content and tells the safety story), OR Option A if the video should
+mirror the captured crypto chart. Either way, reconcile to a single dataset;
+never show "Spongebob," the "RSI to 0" line, or mismatched numbers.
+
+**Product positioning corrections (from the Q&A doc):** Ecelon *does* place
+live orders via the user's CEX/DEX/broker; "paper" is a **beta connection
+scope**, not a permanent limit. "Autonomous" = executes *your* strategy with
+the funds *you* assign, inside *your* limits. Markets = **Crypto, Stocks,
+Prediction Markets, Futures** (not crypto-only) — the approved demo is a
+futures trade, so don't imply crypto-only.
+
+## 10. DESIGN TOKENS — locked defaults (single values)
+
+Collapse every Part-I range to one buildable value (visual estimates from
+the images; re-sample if pixel-exact matching is required):
+
+- `bg` **#0A0A0B** (unify). `surface` **#161619**. `surface-2`
+  **rgba(255,255,255,0.04)**. `hairline` **rgba(255,255,255,0.10)**.
+- Oranges by role: **SMA line / node wires / hold ring / active "+" = #FF6A2C**;
+  **primary CTA fill (Post/Continue/Next/send) = #FF5A1F**; **links/"Why?"/accents
+  = #FF7A3C**; gradient deep stop **#F0531E**.
+- `white` text **#F5F5F7**; **pure #FFFFFF only** for selected-pill fill and
+  headings on the ray bg. Dimmed decimals = value at **opacity 0.5**.
+- Semantic: **candle-up / long / ROI+ / "bought" = #34D27A**; **candle-down /
+  short / danger / "sold" / Emergency / Revoke = #EF5340**. venue-Binance
+  **#F0B90B**. status-amber (Configured) **#E0A54A**.
+- Type sizes (px, Plus Jakarta Sans): modal heading **46/700**; STEP label
+  **13/600 upper 0.18em**; section title **22/700**; body **16/450**;
+  secondary **15/450 @text-2**; big number **44/800 tabular**; stat label
+  **13/600 upper**.
+- Radii: pills **999**; cards **20**; modals **20**; inputs **16**; nodes **18**.
+- **Frosted glass:** fill rgba(22,22,26,0.72) + backdrop-blur(28px).
+
+## 11. ELEVATION / GLOW TOKENS
+
+- `elev-card`: `0 20px 60px rgba(0,0,0,0.45)`
+- `elev-float` (modals, floating panels): `0 40px 110px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06)`
+- `glow-cta` (primary buttons): `0 0 40px rgba(255,90,31,0.45)`
+- `glow-select` (SelectCard chosen): `0 0 30px rgba(255,90,31,0.30)` + `1.5px solid #FF6A2C` border
+- `glow-ring` (Hold to deploy): stroke `#FF6A2C`, `drop-shadow(0 0 16px rgba(255,106,44,0.6))`
+- `glow-live` (status dots): `0 0 10px` of the dot color.
+
+## 12. SPACING & PER-SCREEN GEOMETRY (1920×1080 desktop, estimates)
+
+- Base spacing scale (px): **4 · 8 · 12 · 16 · 20 · 24 · 32 · 40 · 56 · 72**.
+- **NavRail** width **72**; icon buttons **40×40**, radius 12, gap 20; rail
+  pad-top 24. **TopBar** height **72**, side pad 32.
+- **Onboarding modal:** centered column max-width **680**; heading→content
+  gap 40; content→buttons gap 32; Back/primary height **48**, gap 14; select
+  cards **~300×150**, gap 24; STEP label 24 above heading.
+- **Dashboard:** content max-width **1440**, page pad 40; hero band full-width,
+  height **~190**, radius 24, pad 40; stat grid 3× equal, gap 24, card pad 28,
+  height ~150; empty-state blocks radius 20.
+- **Agent detail:** left sub-nav panel **~300** wide; content fills rest.
+  **NodeGraph** nodes **~300–320** wide, header 44, param row 40, `‹value›`
+  steppers right-aligned; bezier wires with mid `+` (28×28); zoom cluster
+  bottom-right, buttons 36. **CandleChart** ~1400×560 incl. axes; pills row 44.
+- **Chat:** thread max-width **~1200**; bubble max-width **~62%**; composer
+  height 56, send 44. **Feed:** center column **760**, right sidebar **320**,
+  gap 32; post card radius 20, pad 24.
+
+## 13. GOD-RAY BACKGROUND — procedural recipe (buildable)
+
+Signature onboarding bg. Pure function of frame:
+- Single origin at **(50%, −6%)** (just above top-center).
+- **56 rays** fanning **downward across ~170°**; per-ray angle evenly spaced
+  + deterministic jitter `hash(i)`.
+- Each ray = a thin gradient wedge from origin to below the bottom edge;
+  width **1–4px** at origin (widen ~1.15× toward the foot), color
+  **#C9803C → transparent**, per-ray opacity **0.05–0.22** by `hash(i)`.
+- Blend **screen/additive** over `#0A0A0A`.
+- Motion: whole field slow-rotates **±2°** over **~600f**; **breathes** scale
+  **1.0↔1.035** over **~200f**; a soft radial **bloom** at origin
+  (`blur(120px)` orange ellipse, opacity ~0.18 breathing).
+- Fine animated **grain** overlay on top (existing `Grain` component, ~0.04)
+  to kill banding. No `Math.random()` — hash by ray index + frame.
+
+## 14. CHROME MAP + MISSING COMPONENTS
+
+**Active-nav / breadcrumb / page-pill per screen:**
+| Screen | Nav active | Page pill | Breadcrumb |
+|---|---|---|---|
+| Dashboard | Dashboard (grid) | Dashboard | — |
+| Wizard (modal) | — (overlay) | — | STEP n OF 8 |
+| Agent Logic / Graph / Activity | Agents (briefcase) | Agents | Agent sub-nav item active |
+| Consulting chat | Agents (briefcase) | Agents | Agents / Macro research / Consulting chat |
+| Connections | Settings/Agents (settings home) | — | — |
+| Feed | Feed (list) | Feed | — |
+
+Nav reconciliation: rail = Dashboard · Agents · Consulting/Chat · Feed ·
+Messages · Theme · "+" · avatar. Treat **Messages** as present-but-unused
+(no screen), **Connections** as living under Settings, **Consulting chat**
+highlights the **Agents** item (it's an agent). **Theme/sun toggle is
+decorative** — dark is the only built mode; never exercise it on screen.
+
+**Components to add to §4 before build:**
+- **LiveAgentsTile** (dashboard bottom + populated close): agent avatar,
+  name, status dot, mini P&L/return; empty ("No holdings yet" + CTA) and
+  populated states.
+- **Badge / StatusDot** (reused ≥5×): pill badge (INFO/FLAG/Paper/BETA/ROI) —
+  shape 999, size 20–22h, fill-vs-outline + color per semantic; StatusDot =
+  8–11px circle + `glow-live`.
+- **Step-7 QuestionBlock**: stacked {question paragraph (text-2) → answer
+  field (filled)} pairs, centered column, same modal shell.
+- **PopulatedDashboard** (close shot): same layout as cold-open but hero P&L
+  now positive (count-up), a holding row present, "1 agent live." Defines the
+  before→after payoff.
+- **ApprovalCard** (only if Option B / Manual approvals): the MNQ card in §9
+  with the checklist and Approve/Edit/Reject — a strong trust beat.
+
+## 15. ANIMATED-COMPONENT STATE PAIRS (from→to for the video)
+
+- SelectCard: unselected(dark, hairline) → selected(orange border + `glow-select`).
+- PillToggle: resting(translucent/gray) → selected(white fill/#0A0A0B text), fill springs across.
+- Button: idle → pressed(scale .97) ; primary carries `glow-cta`.
+- Input/Textarea: placeholder → filled (caret + text type-on).
+- SymbolSearch: empty → "BTCUSDT" chip resolved.
+- HoldToDeploy: idle → holding(ring 0→360°) → complete(bloom/flash) → deployed.
+- CountUp targets: use real non-zero numbers from the chosen §9 dataset
+  (drop count-ups whose target is 0.00 — animate a value that actually moves).
+
+## 16. TIMELINE (fills once scope + aspect are chosen)
+
+30fps, 1920×1080 landscape assumed (matches the existing project). Two scope
+options drive the frame budget:
+- **Wizard hero cut** ~24s (720f): Dashboard 3s → rays/intro 2s → Steps 1–8
+  ~1.6s each → Hold-to-deploy 3s.
+- **Full tour** ~70s (2100f): + Agent Logic, Trading Graph, Activity,
+  Consulting, Feed, Connections, populated close.
+Every §5 cue gets start-frame + duration + easing at build time, tuned to the
+chosen soundtrack. Spring default: iOS-clean `{ damping: 13, stiffness: 280,
+mass: 0.6 }`; count-ups 24–30f cubic-out; step cross-fade 8f + 24px slide;
+hold sweep 45f ease-in-out; candle build 2f/candle stagger; node stagger 4f.
+
+## 17. READINESS — HONEST VERDICT
+
+**Understanding: complete.** Every screen, the full 8-step flow and its
+ordering, the component set, the color/motion language, and the chrome are
+mapped. I can see all 16 screens and Parts I–II encode them.
+
+**Buildable now:** a strong, on-brand, faithful-*looking* UI video, using the
+locked tokens (§10–13), the chrome map (§14), and a reconciled canonical
+dataset (§9).
+
+**Decisions required before I build (only the user can make these):**
+1. **Scope** — wizard hero cut vs full product tour.
+2. **Aspect / length / platform** — landscape 16:9 (safe) or a vertical/social reflow.
+3. **Green/red semantic colors** — needed for UI accuracy; breaks the strict
+   brand-film palette. Approve or forbid.
+4. **Canonical demo** — Option A (clean BTCUSDT "Nova") or Option B (approved
+   MNQ futures + approval card + audit log). No "Spongebob."
+5. **Audio** — reuse existing tracks/SFX or new; VO script or music-only.
+6. **Pixel-exactness** — my hexes/sizes are calibrated estimates from pasted
+   images (not sampled). If Codex builds it, or you want pixel-perfect,
+   re-supply the screenshots as **files** so values can be locked.
+
+**Verdict:** Ready to build an excellent UI video the moment those six are
+answered — held per instruction until the next prompt.
