@@ -538,3 +538,33 @@ dataset (§9).
 
 **Verdict:** Ready to build an excellent UI video the moment those six are
 answered — held per instruction until the next prompt.
+
+## 18. LOCKED DECISIONS (user, this session)
+
+1. **Scope = FULL PRODUCT TOUR (~60–75s).** Build the whole §6 arc:
+   Dashboard → wizard 1–8 → deploy → Agent Logic / Trading Graph / Activity →
+   Consulting chat → Feed → Connections → populated close.
+2. **Canonical demo = clean BTCUSDT "Nova"** (Option A, §9). One reconciled
+   dataset on every screen: agent **Nova**, BTCUSDT, Autonomous, Binance
+   (Crypto); strategy *"Go long when RSI(14) drops below 30 on 5m candles.
+   Close when RSI(14) crosses above 50."*; Balanced; 10,000 USDT; Manual
+   approvals. **Never** show "Spongebob," the "RSI to 0" line, or 100k/10k
+   mismatches. (The approved MNQ demo is NOT used this round.)
+3. **Palette = STRICT white / orange / near-black — NO green/red.** Override
+   §2.1's semantic-color guidance: map every product green/red to the brand
+   palette instead — candles = white/orange (up = orange or white, down =
+   dimmed/neutral), ROI/LONG/"bought"/"sold" = orange or neutral, Emergency
+   stop / Revoke = orange (not red). Brand consistency chosen over literal
+   product-color fidelity. `pos`/`neg` tokens in §10 are **disabled**; use
+   `orange` + `text-2/3` + `white` only.
+4. **Format = landscape 16:9, 1920×1080, 30fps** (matches the existing
+   project + the desktop-web UI). No vertical cut this round.
+
+Still open (not blocking a start): **audio** (reuse existing tracks/SFX vs
+new; VO vs music-only) — will default to a clean UI-sound-design pass
+(soft pops/swishes on transitions, count-up ticks, a hold-to-deploy bloom)
++ reusing the project's music unless told otherwise. And confirm **I** build
+it here (vs handing the spec to Codex).
+
+**Standing by for the go-ahead to build — not producing the video until the
+next prompt, per instruction.**
