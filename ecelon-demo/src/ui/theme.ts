@@ -35,9 +35,13 @@ export const U = {
 // Placeholder identity (never the real user's name).
 export const USER = { name: "Alex Rivera", first: "Alex", handle: "@alexrivera", initials: "AR" };
 
+export const MARKETS = ["Crypto", "Stocks", "Prediction", "Futures"];
+
 // Canonical demo agent — one consistent dataset on every screen.
+// "BTC Reversal" is the USER'S OWN agent name (strategy-descriptive), shown
+// only as instance metadata in real app chrome — never as a brand/tagline.
 export const AGENT = {
-  name: "Nova",
+  name: "BTC Reversal",
   ticker: "BTCUSDT",
   venue: "Binance",
   market: "Crypto",

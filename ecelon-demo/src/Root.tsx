@@ -4,9 +4,18 @@ import { EcelonDemo, TOTAL_FRAMES } from "./EcelonDemo";
 import { EcelonDemoV4, V4_TOTAL_FRAMES } from "./v4/EcelonDemoV4";
 import { EcelonUI, UI_TOTAL } from "./ui/EcelonUI";
 import { EcelonLaunch, LAUNCH_TOTAL } from "./ui/EcelonLaunch";
+import { EcelonRebuild, REBUILD_TOTAL } from "./ui/EcelonRebuild";
 
 export const RemotionRoot: React.FC = () => (
   <>
+    <Composition
+      id="EcelonRebuild"
+      component={EcelonRebuild}
+      durationInFrames={REBUILD_TOTAL}
+      fps={30}
+      width={1920}
+      height={1080}
+    />
     <Composition
       id="EcelonLaunch"
       component={EcelonLaunch}

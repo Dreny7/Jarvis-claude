@@ -95,7 +95,7 @@ export const Feed: React.FC = () => (
                 <div style={{ fontFamily: U.font, fontSize: 15, color: U.text3 }}>{USER.handle}</div>
               </div>
             </div>
-            <div style={{ fontFamily: U.font, fontSize: 20, color: U.white, marginTop: 16 }}>Nova is live. Deployed in under a minute.</div>
+            <div style={{ fontFamily: U.font, fontSize: 20, color: U.white, marginTop: 16 }}>My agent is live. Deployed in under a minute.</div>
             <div style={{ display: "flex", alignItems: "center", gap: 22, marginTop: 18 }}>
               <span style={{ fontFamily: U.font, fontSize: 16, color: U.text2 }}>♥ 12</span>
               <span style={{ fontFamily: U.font, fontSize: 16, color: U.text2 }}>💬 3</span>

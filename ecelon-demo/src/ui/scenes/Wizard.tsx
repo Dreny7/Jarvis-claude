@@ -157,9 +157,9 @@ export const Step7: React.FC = () => (
 
 export const Step8: React.FC = () => {
   const frame = useCurrentFrame();
-  const p = interpolate(frame, [22, 88], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const p = interpolate(frame, [16, 66], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const done = p >= 1;
-  const bloom = done ? interpolate(frame, [88, 96, 105], [0, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 0;
+  const bloom = done ? interpolate(frame, [66, 74, 90], [0, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 0;
   const R = 62;
   const C = 2 * Math.PI * R;
   const headR = useRise(2, 18);
@@ -167,7 +167,7 @@ export const Step8: React.FC = () => {
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 720 }}>
         <div style={{ fontFamily: U.font, fontWeight: 600, fontSize: 13, letterSpacing: "0.18em", color: U.text3, marginBottom: 16, opacity: headR.opacity }}>STEP 8 OF 8</div>
-        <div style={{ fontFamily: U.font, fontWeight: 800, fontSize: 44, color: U.pureWhite, opacity: headR.opacity, transform: headR.transform }}>Ready to deploy {AGENT.name}?</div>
+        <div style={{ fontFamily: U.font, fontWeight: 800, fontSize: 44, color: U.pureWhite, opacity: headR.opacity, transform: headR.transform }}>Ready to deploy?</div>
         <Rise delay={8} style={{ marginTop: 30 }}>
           <Card glass style={{ width: 560, padding: "10px 30px" }}>
             <Row k="Name" v={AGENT.name} />
